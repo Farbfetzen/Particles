@@ -3,7 +3,7 @@ import os
 import sys
 
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
-import pygame.freetype
+import pygame.freetype  # imports also pygame
 
 import src.default
 
@@ -47,8 +47,16 @@ font.fgcolor = pygame.Color([255 - x for x in sim.BACKGROUND_COLOR[:3]])
 line_spacing = pygame.Vector2(0, font.get_sized_height())
 text_margin = pygame.Vector2(5, 5)
 
+# Separate updates from window updates. More updates per frame means
+# a smoother emission pattern. Otherwise there are visible puffs
+# of particles when the emitter is moving quickly across the window.
+UPS = 120
+FPS = 60
+TIME_PER_FRAME = 1 / FPS
+time_since_last_draw = 0
+
 while True:
-    dt = clock.tick(60) / 1000
+    dt = clock.tick(UPS) / 1000
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -62,18 +70,19 @@ while True:
 
     emitter.update(dt)
 
-    emitter.draw(window)
-
-    if show_info:
-        font.render_to(
-            window,
-            text_margin,
-            f"fps: {clock.get_fps():.0f}"
-        )
-        font.render_to(
-            window,
-            text_margin + line_spacing,
-            f"number of particles: {len(emitter.particles)}"
-        )
-
-    pygame.display.flip()
+    time_since_last_draw += dt
+    if time_since_last_draw > TIME_PER_FRAME:
+        time_since_last_draw %= TIME_PER_FRAME
+        emitter.draw(window)
+        if show_info:
+            font.render_to(
+                window,
+                text_margin,
+                f"updates per second: {clock.get_fps():.0f}"
+            )
+            font.render_to(
+                window,
+                text_margin + line_spacing,
+                f"number of particles: {len(emitter.particles)}"
+            )
+        pygame.display.flip()
