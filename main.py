@@ -1,5 +1,6 @@
 import argparse
 import os
+import sys
 
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 import pygame
@@ -10,32 +11,28 @@ import src.default
 sims = {
     "default": src.default
 }
+sim = sims["default"]
 
 
-def run(sim_name="default"):
-    pygame.init()
+pygame.init()
+window = pygame.display.set_mode((1200, 800))
+pygame.display.set_caption("Particles")
+clock = pygame.time.Clock()
+pygame.mouse.set_visible(sim.MOUSE_IS_VISIBLE)
+emitter = sim.Emitter()
 
-    sim = sims[sim_name]
-    window = pygame.display.set_mode(sim.WINDOW_SIZE)
-    clock = pygame.time.Clock()
-    pygame.mouse.set_visible(sim.MOUSE_IS_VISIBLE)
-    emitter = sim.Emitter()
+while True:
+    dt = clock.tick(60) / 1000
 
-    while True:
-        dt = clock.tick(sim.FPS) / 1000
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            sys.exit()
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                sys.exit()
+        emitter.handle_event(event)
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                return
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    return
-            emitter.handle_event(event)
+    emitter.update(dt)
 
-        emitter.update(dt)
-
-        emitter.draw(window)
-        pygame.display.flip()
-
-
-run()
+    emitter.draw(window)
+    pygame.display.flip()
