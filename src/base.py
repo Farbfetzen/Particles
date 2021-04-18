@@ -19,5 +19,5 @@ class Emitter(ABC):
 class Particle:
 
     @abstractmethod
-    def update(self, dt, forces):
+    def update(self, dt, force_dt):
         pass
