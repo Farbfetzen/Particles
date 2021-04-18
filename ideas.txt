@@ -1,0 +1,8 @@
+- spiraling emitter pattern
+- fire
+- meteorite: particles go up and to the side
+- pulsed emitter
+- transparency and blend modes: https://www.youtube.com/watch?v=pUhv2CA0omA
+- repulsion from the center of the screen
+- particles fall down, collide with the bottom edge of the window, and bounce a few times
+- more ideas from The Coding Train videos
