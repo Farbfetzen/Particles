@@ -35,10 +35,8 @@ class Emitter(base.Emitter):
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             self.is_emitting = True
-            pygame.mouse.set_visible(False)
         elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             self.is_emitting = False
-            pygame.mouse.set_visible(True)
 
     def update(self, dt):
         self.position.update(pygame.mouse.get_pos())
@@ -55,8 +53,10 @@ class Emitter(base.Emitter):
 
     def draw(self, target_surace):
         target_surace.fill(BACKGROUND_COLOR)
+        if not self.is_emitting:
+            pygame.draw.circle(target_surace, PARTICLE_COLOR, self.position, 3, 1)
         for p in self.particles:
-            pygame.draw.circle(target_surace, PARTICLE_COLOR, p.position, PARTICLE_RADIUS, 0)
+            pygame.draw.circle(target_surace, PARTICLE_COLOR, p.position, PARTICLE_RADIUS)
 
 
 class Particle(base.Particle):

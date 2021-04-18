@@ -37,6 +37,7 @@ sim = sims[args.name]
 pygame.init()
 window = pygame.display.set_mode(args.window_size)
 pygame.display.set_caption("Particles")
+pygame.mouse.set_visible(False)
 clock = pygame.time.Clock()
 emitter = sim.Emitter()
 
