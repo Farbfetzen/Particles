@@ -6,3 +6,4 @@
 - repulsion from the center of the screen
 - particles fall down, collide with the bottom edge of the window, and bounce a few times
 - more ideas from The Coding Train videos
+- fireworks in various colors, shapes, sizes, and effects (e.g. some real fireworks sparkle shortly before going out)
