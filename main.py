@@ -8,14 +8,34 @@ import pygame.freetype
 import src.default
 
 
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "name",
+    nargs="?",
+    default="default",
+    help="Name of the particle simulation."
+)
+parser.add_argument(
+    "-w",
+    "--window-size",
+    metavar=("<width>", "<height>"),
+    nargs=2,
+    type=int,
+    default=(1200, 800),
+    help="Specify the window width and height in pixels."
+)
+args = parser.parse_args()
+
 sims = {
     "default": src.default
 }
-sim = sims["default"]
+if args.name not in sims:
+    parser.error(f"name must be one of {list(sims.keys())}")
+sim = sims[args.name]
 
 
 pygame.init()
-window = pygame.display.set_mode((1200, 800))
+window = pygame.display.set_mode(args.window_size)
 pygame.display.set_caption("Particles")
 clock = pygame.time.Clock()
 pygame.mouse.set_visible(sim.MOUSE_IS_VISIBLE)
@@ -25,7 +45,6 @@ show_info = False
 font = pygame.freetype.SysFont("inconsolate, consolas, monospace", 16)
 # invert background color but not the alpha value
 font.fgcolor = pygame.Color([255 - x for x in sim.BACKGROUND_COLOR[:3]])
-print(font.fgcolor)
 line_spacing = pygame.Vector2(0, font.get_sized_height())
 text_margin = pygame.Vector2(5, 5)
 
