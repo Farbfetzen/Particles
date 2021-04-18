@@ -8,7 +8,7 @@ from src import base
 BACKGROUND_COLOR = pygame.Color(0, 0, 32)
 PARTICLE_COLOR = pygame.Color("#e25822")
 PARTICLE_RADIUS = 5
-PARTICLES_PER_SECOND = 500
+PARTICLES_PER_SECOND = 1000
 SECONDS_BETWEEN_EMISSIONS = 1 / PARTICLES_PER_SECOND
 MOUSE_IS_VISIBLE = False
 LIFETIME_MEAN = 1  # seconds
@@ -35,8 +35,10 @@ class Emitter(base.Emitter):
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             self.is_emitting = True
+            pygame.mouse.set_visible(False)
         elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             self.is_emitting = False
+            pygame.mouse.set_visible(True)
 
     def update(self, dt):
         self.position.update(pygame.mouse.get_pos())
@@ -53,7 +55,6 @@ class Emitter(base.Emitter):
 
     def draw(self, target_surace):
         target_surace.fill(BACKGROUND_COLOR)
-        pygame.draw.circle(target_surace, PARTICLE_COLOR, self.position, 3, 1)
         for p in self.particles:
             pygame.draw.circle(target_surace, PARTICLE_COLOR, p.position, PARTICLE_RADIUS, 0)
 

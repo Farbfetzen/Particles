@@ -38,7 +38,6 @@ pygame.init()
 window = pygame.display.set_mode(args.window_size)
 pygame.display.set_caption("Particles")
 clock = pygame.time.Clock()
-pygame.mouse.set_visible(sim.MOUSE_IS_VISIBLE)
 emitter = sim.Emitter()
 
 show_info = False
