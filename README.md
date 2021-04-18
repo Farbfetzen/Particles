@@ -4,8 +4,8 @@ A collection of particle emitters.
 Action | Binding
 --- | ---
 Emit particles | Left mouse button
-Show miscellaneous info | **F1**
-Quit | **Esc**
+Show miscellaneous info | F1
+Quit | Esc
 
 
 ### Command Line Arguments
