@@ -7,6 +7,7 @@ from src.helpers import EventTimer
 
 
 BACKGROUND_COLOR = pygame.Color(0, 0, 32)
+TRANSPARENT_BLACK = pygame.Color(0, 0, 0, 0)
 PARTICLE_COLOR = pygame.Color(226, 88, 34)
 PARTICLE_DIAMETER = 51
 PARTICLES_PER_SECOND = 250
@@ -52,9 +53,9 @@ class Emitter(base.Emitter):
             p.update(dt, force_dt)
 
     def draw(self, target_surace):
-        self.fire_surface.fill((0, 0, 0, 0))
+        self.fire_surface.fill(TRANSPARENT_BLACK)
         for p in self.particles:
-            self.fire_surface.blit(p.image, p.position, special_flags=pygame.BLEND_RGBA_ADD)
+            self.fire_surface.blit(Particle.image, p.position, special_flags=pygame.BLEND_RGBA_ADD)
         target_surace.fill(BACKGROUND_COLOR)
         if not self.is_emitting:
             pygame.draw.circle(target_surace, PARTICLE_COLOR, self.position, 3, 1)
@@ -65,14 +66,13 @@ def make_particle_image():
     image = pygame.Surface((PARTICLE_DIAMETER, PARTICLE_DIAMETER), flags=pygame.SRCALPHA)
     max_distance = (PARTICLE_DIAMETER - 1) / 2
     center = pygame.Vector2(max_distance)
-    transparent_black = pygame.Color(0, 0, 0, 0)
     for x in range(PARTICLE_DIAMETER):
         for y in range(PARTICLE_DIAMETER):
             # linear interpolation (not how real light behaves)
             position = (x, y)
             distance = center.distance_to(position)
             ratio = min(distance / max_distance, 1)
-            color = PARTICLE_COLOR.lerp(transparent_black, ratio)
+            color = PARTICLE_COLOR.lerp(TRANSPARENT_BLACK, ratio)
             image.set_at(position, color)
     return image
 
@@ -95,4 +95,3 @@ class Particle(base.Particle):
 
         # TODO: Reduce surface alpha with increasing lifetime.
         #  Currently the particles just vanish suddenly.
-
