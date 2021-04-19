@@ -72,6 +72,7 @@ while True:
                 show_info = not show_info
             elif event.key == pygame.K_SPACE:
                 paused = not paused
+                pygame.mouse.set_visible(paused)
         emitter.handle_event(event)
 
     if not paused:
