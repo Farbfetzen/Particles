@@ -10,9 +10,9 @@ from src import base
 
 
 BACKGROUND_COLOR = pygame.Color(0, 0, 32)
-PARTICLE_COLOR = (226, 88, 34)
+PARTICLE_COLOR = pygame.Color(226, 88, 34)
 PARTICLE_DIAMETER = 51
-PARTICLES_PER_SECOND = 500
+PARTICLES_PER_SECOND = 250
 SECONDS_BETWEEN_EMISSIONS = 1 / PARTICLES_PER_SECOND
 LIFETIME_MEAN = 0.75  # seconds
 LIFETIME_SD = 0.2
@@ -55,45 +55,28 @@ class Emitter(base.Emitter):
                 self.particles.append(Particle(self.position))
 
     def draw(self, target_surace):
-        target_surace.fill(BACKGROUND_COLOR)
         self.fire_surface.fill((0, 0, 0, 0))
-        if not self.is_emitting:
-            pygame.draw.circle(self.fire_surface, PARTICLE_COLOR, self.position, 3, 1)
         for p in self.particles:
             self.fire_surface.blit(p.image, p.position, special_flags=pygame.BLEND_RGBA_ADD)
+        target_surace.fill(BACKGROUND_COLOR)
+        if not self.is_emitting:
+            pygame.draw.circle(target_surace, PARTICLE_COLOR, self.position, 3, 1)
         target_surace.blit(self.fire_surface, (0, 0))
-
-
-def linear_map(x, in_start, in_end, out_start, out_end, limit=True):
-    x = (x - in_start) / (in_end - in_start) * (out_end - out_start) + out_start
-    if limit:
-        if out_start < out_end:
-            if x < out_start:
-                return out_start
-            elif x > out_end:
-                return out_end
-        elif out_start > out_end:
-            if x > out_start:
-                return out_start
-            elif x < out_end:
-                return out_end
-        return x
 
 
 def make_particle_image():
     image = pygame.Surface((PARTICLE_DIAMETER, PARTICLE_DIAMETER), flags=pygame.SRCALPHA)
     max_distance = (PARTICLE_DIAMETER - 1) / 2
     center = pygame.Vector2(max_distance)
+    transparent_black = pygame.Color(0, 0, 0, 0)
     for x in range(PARTICLE_DIAMETER):
         for y in range(PARTICLE_DIAMETER):
             # linear interpolation (not how real light behaves)
-            pos = pygame.Vector2(x, y)
-            distance = pos.distance_to(center)
-            r = int(linear_map(distance, 0, max_distance, PARTICLE_COLOR[0], 0))
-            g = int(linear_map(distance, 0, max_distance, PARTICLE_COLOR[1], 0))
-            b = int(linear_map(distance, 0, max_distance, PARTICLE_COLOR[2], 0))
-            a = int(linear_map(distance, 0, max_distance, 255, 0))
-            image.set_at((x, y), pygame.Color(r, g, b, a))
+            position = (x, y)
+            distance = center.distance_to(position)
+            ratio = min(distance / max_distance, 1)
+            color = PARTICLE_COLOR.lerp(transparent_black, ratio)
+            image.set_at(position, color)
     return image
 
 
