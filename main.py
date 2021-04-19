@@ -51,7 +51,7 @@ font.fgcolor = pygame.Color([255 - x for x in sim.BACKGROUND_COLOR[:3]])
 line_spacing = pygame.Vector2(0, font.get_sized_height())
 text_margin = pygame.Vector2(5, 5)
 
-# Separate updates (ups) from draw updates (fps). More updates per frame means
+# Separate physics updates (ups) from display updates (fps). More updates per frame means
 # a smoother emission pattern. Otherwise there may be visible puffs
 # of particles when the emitter is moving quickly across the window.
 UPS = 120
