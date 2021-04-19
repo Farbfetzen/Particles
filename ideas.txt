@@ -11,3 +11,5 @@ Make more emitters.
 - fireworks in various colors, shapes, sizes, and effects (e.g. some real fireworks sparkle shortly before going out)
 - different emitter shapes: rings, squares, stars, ... (the default is the emitter position point)
 - try different distributions: beta, uniform, etc. The beta distribution can look like the normal distribution with lower and upper limits.
+- random wind force for flickering fire?
+- fire.py with BLEND_RGBA_MAX looks cool

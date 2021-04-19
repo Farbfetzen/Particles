@@ -6,6 +6,7 @@ os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 import pygame.freetype  # imports also pygame
 
 import src.default
+import src.fire
 
 
 parser = argparse.ArgumentParser()
@@ -27,7 +28,8 @@ parser.add_argument(
 args = parser.parse_args()
 
 sims = {
-    "default": src.default
+    "default": src.default,
+    "fire": src.fire
 }
 if args.name not in sims:
     parser.error(f"name must be one of {list(sims.keys())}")
@@ -55,6 +57,7 @@ UPS = 120
 FPS = 60
 TIME_PER_FRAME = 1 / FPS
 time_since_last_draw = 0
+paused = False
 
 while True:
     dt = clock.tick(UPS) / 1000
@@ -67,9 +70,12 @@ while True:
                 sys.exit()
             if event.key == pygame.K_F1:
                 show_info = not show_info
+            elif event.key == pygame.K_SPACE:
+                paused = not paused
         emitter.handle_event(event)
 
-    emitter.update(dt)
+    if not paused:
+        emitter.update(dt)
 
     time_since_last_draw += dt
     if time_since_last_draw > TIME_PER_FRAME:
