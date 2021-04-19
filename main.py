@@ -44,7 +44,7 @@ pygame.mouse.set_visible(False)
 clock = pygame.time.Clock()
 emitter = sim.Emitter()
 
-show_info = False
+show_info = True
 font = pygame.freetype.SysFont("inconsolate, consolas, monospace", 16)
 # invert background color but not the alpha value
 font.fgcolor = pygame.Color([255 - x for x in sim.BACKGROUND_COLOR[:3]])
