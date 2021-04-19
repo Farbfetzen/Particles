@@ -71,7 +71,7 @@ while True:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 sys.exit()
-            if event.key == pygame.K_F1:
+            elif event.key == pygame.K_F1:
                 show_info = not show_info
             elif event.key == pygame.K_SPACE:
                 paused = not paused
