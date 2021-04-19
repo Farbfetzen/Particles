@@ -5,6 +5,7 @@ import sys
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 import pygame.freetype  # imports also pygame
 
+from src.helpers import EventTimer
 import src.default
 import src.fire
 
@@ -50,17 +51,19 @@ font.fgcolor = pygame.Color([255 - x for x in sim.BACKGROUND_COLOR[:3]])
 line_spacing = pygame.Vector2(0, font.get_sized_height())
 text_margin = pygame.Vector2(5, 5)
 
-# Separate updates from window updates. More updates per frame means
-# a smoother emission pattern. Otherwise there are visible puffs
+# Separate updates (ups) from draw updates (fps). More updates per frame means
+# a smoother emission pattern. Otherwise there may be visible puffs
 # of particles when the emitter is moving quickly across the window.
 UPS = 120
 FPS = 60
-TIME_PER_FRAME = 1 / FPS
-time_since_last_draw = 0
+DRAW_EVENT_ID = pygame.event.custom_type()
+draw_timer = EventTimer(DRAW_EVENT_ID, 1 / FPS, True)
+draw = False
 paused = False
 
 while True:
-    dt = clock.tick(UPS) / 1000
+    dt = clock.tick(UPS) / 1000  # in seconds
+    draw_timer.update(dt)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -73,14 +76,15 @@ while True:
             elif event.key == pygame.K_SPACE:
                 paused = not paused
                 pygame.mouse.set_visible(paused)
+        elif event.type == DRAW_EVENT_ID:
+            draw = True
         emitter.handle_event(event)
 
     if not paused:
         emitter.update(dt)
 
-    time_since_last_draw += dt
-    if time_since_last_draw > TIME_PER_FRAME:
-        time_since_last_draw %= TIME_PER_FRAME
+    if draw:
+        draw = False
         emitter.draw(window)
         if show_info:
             font.render_to(
