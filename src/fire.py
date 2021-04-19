@@ -1,3 +1,8 @@
+# Improvement Ideas:
+# - Reduce surface alpha with increasing lifetime. Currently the particles just vanish suddenly.
+# - Fire flickers randomly. Both in brightness (surface alpha) and direction of the flames.
+
+
 import random
 
 import pygame
@@ -45,12 +50,13 @@ class Emitter(base.Emitter):
     def update(self, dt):
         self.emission_timer.update(dt)
         self.position.update(pygame.mouse.get_pos())
-        # Remove old particles before updating the rest, otherwise they live
-        # one frame less than intended.
-        self.particles = [p for p in self.particles if p.lifetime < p.lifetime_limit]
         force_dt = TOTAL_FORCE * dt
+        alive_particles = []
         for p in self.particles:
-            p.update(dt, force_dt)
+            if p.alive:
+                alive_particles.append(p)
+                p.update(dt, force_dt)
+        self.particles = alive_particles
 
     def draw(self, target_surace):
         self.fire_surface.fill(TRANSPARENT_BLACK)
@@ -87,11 +93,12 @@ class Particle(base.Particle):
         self.velocity.rotate_ip(random.uniform(0, 360))
         self.lifetime = 0
         self.lifetime_limit = random.gauss(LIFETIME_MEAN, LIFETIME_SD)
+        self.alive = True
 
     def update(self, dt, force_dt):
         self.lifetime += dt
-        self.velocity += force_dt
-        self.position += self.velocity * dt
-
-        # TODO: Reduce surface alpha with increasing lifetime.
-        #  Currently the particles just vanish suddenly.
+        if self.lifetime >= self.lifetime_limit:
+            self.alive = False
+        else:
+            self.velocity += force_dt
+            self.position += self.velocity * dt
