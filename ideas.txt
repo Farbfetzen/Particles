@@ -13,3 +13,4 @@ Make more emitters.
 - try different distributions: beta, uniform, etc. The beta distribution can look like the normal distribution with lower and upper limits.
 - random wind force for flickering fire?
 - fire.py with BLEND_RGBA_MAX looks cool
+- The main emitter emits more emitters. Maybe the mouse throws fireballs?

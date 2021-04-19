@@ -3,6 +3,16 @@
 import pygame
 
 
+def linear_map(x, in_start, in_end, out_start=0, out_end=1):
+    """
+    Linearly map (scale) a number from one range to another range.
+    Can also be used for linear interpolation. And you can invert
+    the ranges by making start greater than end. Values outside
+    both ranges are also possible.
+    """
+    return (x - in_start) / (in_end - in_start) * (out_end - out_start) + out_start
+
+
 class EventTimer:
     def __init__(self, eventid, seconds, once=False):
         """
