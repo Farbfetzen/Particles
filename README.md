@@ -1,5 +1,16 @@
 A collection of particle emitters.
 
+You can choose the simulation by giving its name as the first argument.
+If it is missing, the default one is used.
+```
+python main.py fire
+```
+Available modes:
+- default
+- fire
+- bounce
+
+
 ### Controls:
 Action | Binding
 --- | ---
@@ -10,12 +21,5 @@ Quit | Esc
 
 
 ### Command Line Arguments
-You can choose the type of simulation by giving its name as the first argument.
-If it is missing, the default one is used.
-```
-python main.py fire
-```
-
-Optional arguments:
 - -w, --window-size \<width> \<height>: Specify the window width and height in pixels.
 - -h, --help: Show a help message and exit.

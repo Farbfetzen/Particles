@@ -8,6 +8,7 @@ import pygame.freetype  # imports also pygame
 from src.helpers import EventTimer
 import src.default
 import src.fire
+import src.bounce
 
 
 parser = argparse.ArgumentParser()
@@ -30,7 +31,8 @@ args = parser.parse_args()
 
 sims = {
     "default": src.default,
-    "fire": src.fire
+    "fire": src.fire,
+    "bounce": src.bounce
 }
 if args.name not in sims:
     parser.error(f"name must be one of {list(sims.keys())}")
