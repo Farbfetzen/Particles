@@ -6,7 +6,6 @@ import random
 
 import pygame
 
-from src import base
 from src.helpers import linear_map, EventTimer
 
 
@@ -31,7 +30,7 @@ TOTAL_FORCE = sum(FORCES, pygame.Vector2())
 EMISSION_EVENT_ID = pygame.event.custom_type()
 
 
-class Emitter(base.Emitter):
+class Emitter:
     def __init__(self):
         self.particles = []
         self.position = pygame.Vector2()
@@ -98,7 +97,7 @@ def make_particle_images():
     return images
 
 
-class Particle(base.Particle):
+class Particle:
     images = make_particle_images()
 
     def __init__(self, position):

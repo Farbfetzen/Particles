@@ -2,7 +2,6 @@ import random
 
 import pygame
 
-from src import base
 from src.helpers import EventTimer
 
 
@@ -22,7 +21,7 @@ TOTAL_FORCE = sum(FORCES, pygame.Vector2())
 EMISSION_EVENT_ID = pygame.event.custom_type()
 
 
-class Emitter(base.Emitter):
+class Emitter:
     def __init__(self):
         self.particles = []
         self.position = pygame.Vector2()
@@ -56,7 +55,7 @@ class Emitter(base.Emitter):
             pygame.draw.circle(target_surace, PARTICLE_COLOR, p.position, PARTICLE_RADIUS)
 
 
-class Particle(base.Particle):
+class Particle:
     def __init__(self, position, y_max):
         self.position = pygame.Vector2(position)
         self.velocity = pygame.Vector2(random.gauss(SPEED_MEAN, SPEED_SD), 0)
