@@ -6,7 +6,7 @@ import random
 
 import pygame
 
-from src.helpers import linear_map, EventTimer
+from src.helpers import linear_map, Timer
 
 
 BACKGROUND_COLOR = pygame.Color(0, 0, 32)
@@ -25,16 +25,15 @@ ACCELERATIONS = (
     pygame.Vector2(0, -400),  # updraft
 )
 TOTAL_ACCELERATION = sum(ACCELERATIONS, pygame.Vector2())
-EMISSION_EVENT_ID = pygame.event.custom_type()
 
 
 class Emitter:
     def __init__(self):
-        self.particles = []
         self.position = pygame.Vector2()
-        self.time_since_last_emission = 0
+        self.previous_position = pygame.Vector2(self.position)
+        self.particles = []
         self.is_emitting = False
-        self.emission_timer = EventTimer(EMISSION_EVENT_ID, 1 / PARTICLES_PER_SECOND)
+        self.emission_timer = Timer(1 / PARTICLES_PER_SECOND)
         self.fire_surface = pygame.Surface(pygame.display.get_window_size(), flags=pygame.SRCALPHA)
 
     def handle_event(self, event):
@@ -42,11 +41,9 @@ class Emitter:
             self.is_emitting = True
         elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             self.is_emitting = False
-        elif event.type == EMISSION_EVENT_ID and self.is_emitting:
-            self.particles.append(Particle(self.position))
 
     def update(self, dt):
-        self.emission_timer.update(dt)
+        self.previous_position.update(self.position)
         self.position.update(pygame.mouse.get_pos())
         velocity_change = TOTAL_ACCELERATION * dt
         velocity_change_half = velocity_change / 2
@@ -56,6 +53,9 @@ class Emitter:
                 alive_particles.append(p)
                 p.update(dt, velocity_change, velocity_change_half)
         self.particles = alive_particles
+        n_new_particles = self.emission_timer.update(dt)
+        if self.is_emitting and n_new_particles > 0:
+            self.emit(n_new_particles)
 
     def draw(self, target_surace):
         self.fire_surface.fill(TRANSPARENT_BLACK)
@@ -65,6 +65,15 @@ class Emitter:
         if not self.is_emitting:
             pygame.draw.circle(target_surace, PARTICLE_COLOR, self.position, 3, 1)
         target_surace.blit(self.fire_surface, (0, 0))
+
+    def emit(self, n_particles):
+        if self.previous_position.distance_squared_to(self.position) > 0:
+            for i in range(n_particles):
+                position = self.position.lerp(self.previous_position, i / n_particles)
+                self.particles.append(Particle(position))
+        else:
+            for _ in range(n_particles):
+                self.particles.append(Particle(self.position))
 
 
 def make_particle_images():
