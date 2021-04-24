@@ -11,13 +11,12 @@ PARTICLE_RADIUS = 5
 PARTICLES_PER_SECOND = 500
 SPEED_MEAN = 150  # pixels per second
 SPEED_SD = 50
-# Strictly speaking those are not forces but accelerations. Here it
-# doesn't matter because all particles have the same mass.
-FORCES = (
+ACCELERATIONS = (
     pygame.Vector2(0, 750),  # gravity
 )
-# No need to iterate over all forces every frame if I can just use the sum.
-TOTAL_FORCE = sum(FORCES, pygame.Vector2())
+# I could also implement forces instead of accelerations but that
+# is unnecessary as long as all particles have the same mass.
+TOTAL_ACCELERATION = sum(ACCELERATIONS, pygame.Vector2())
 EMISSION_EVENT_ID = pygame.event.custom_type()
 
 
@@ -42,10 +41,10 @@ class Emitter:
         self.emission_timer.update(dt)
         self.position.update(pygame.mouse.get_pos())
         self.particles = [p for p in self.particles if p.alive]
-        force_dt = TOTAL_FORCE * dt
-        force_dt_half = force_dt / 2
+        velocity_change = TOTAL_ACCELERATION * dt
+        velocity_change_half = velocity_change / 2
         for p in self.particles:
-            p.update(dt, force_dt, force_dt_half)
+            p.update(dt, velocity_change, velocity_change_half)
 
     def draw(self, target_surace):
         target_surace.fill(BACKGROUND_COLOR)
@@ -63,13 +62,13 @@ class Particle:
         self.y_max = y_max + PARTICLE_RADIUS
         self.alive = True
 
-    def update(self, dt, force_dt, force_dt_half):
+    def update(self, dt, velocity_change, velocity_change_half):
         if self.position.y >= self.y_max:
             self.alive = False
         else:
-            self.velocity += force_dt
+            self.velocity += velocity_change
             # Accurate position under gravity.:
-            self.position += (self.velocity - force_dt_half) * dt
+            self.position += (self.velocity - velocity_change_half) * dt
             # This one is inaccurate but also ok. The difference gets smaller
             # with time and becomes less than 1 % after about 120 steps.
             # self.position += self.velocity * dt

@@ -21,12 +21,10 @@ LIFETIME_SD = 0.1
 VANISH_DURATION = 0.5
 SPEED_MEAN = 100  # pixels per second
 SPEED_SD = 25
-# Strictly speaking those are not forces but accelerations. Here it
-# doesn't matter because all particles have the same mass.
-FORCES = (
+ACCELERATIONS = (
     pygame.Vector2(0, -400),  # updraft
 )
-TOTAL_FORCE = sum(FORCES, pygame.Vector2())
+TOTAL_ACCELERATION = sum(ACCELERATIONS, pygame.Vector2())
 EMISSION_EVENT_ID = pygame.event.custom_type()
 
 
@@ -50,13 +48,13 @@ class Emitter:
     def update(self, dt):
         self.emission_timer.update(dt)
         self.position.update(pygame.mouse.get_pos())
-        force_dt = TOTAL_FORCE * dt
-        force_dt_half = force_dt / 2
+        velocity_change = TOTAL_ACCELERATION * dt
+        velocity_change_half = velocity_change / 2
         alive_particles = []
         for p in self.particles:
             if p.alive:
                 alive_particles.append(p)
-                p.update(dt, force_dt, force_dt_half)
+                p.update(dt, velocity_change, velocity_change_half)
         self.particles = alive_particles
 
     def draw(self, target_surace):
@@ -111,7 +109,7 @@ class Particle:
         self.vanish_start_time = self.lifetime_limit - VANISH_DURATION
         self.alive = True
 
-    def update(self, dt, force_dt, force_dt_half):
+    def update(self, dt, velocity_change, velocity_change_half):
         self.time += dt
         if self.time >= self.vanish_start_time:
             if self.time >= self.lifetime_limit:
@@ -123,5 +121,5 @@ class Particle:
                 255, 0
             )
             self.image = Particle.images[int(alpha)]
-        self.velocity += force_dt
-        self.position += (self.velocity - force_dt_half) * dt
+        self.velocity += velocity_change
+        self.position += (self.velocity - velocity_change_half) * dt
