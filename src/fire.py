@@ -52,11 +52,12 @@ class Emitter(base.Emitter):
         self.emission_timer.update(dt)
         self.position.update(pygame.mouse.get_pos())
         force_dt = TOTAL_FORCE * dt
+        force_dt_half = force_dt / 2
         alive_particles = []
         for p in self.particles:
             if p.alive:
                 alive_particles.append(p)
-                p.update(dt, force_dt)
+                p.update(dt, force_dt, force_dt_half)
         self.particles = alive_particles
 
     def draw(self, target_surace):
@@ -111,7 +112,7 @@ class Particle(base.Particle):
         self.vanish_start_time = self.lifetime_limit - VANISH_DURATION
         self.alive = True
 
-    def update(self, dt, force_dt):
+    def update(self, dt, force_dt, force_dt_half):
         self.time += dt
         if self.time >= self.vanish_start_time:
             if self.time >= self.lifetime_limit:
@@ -123,6 +124,5 @@ class Particle(base.Particle):
                 255, 0
             )
             self.image = Particle.images[int(alpha)]
-
         self.velocity += force_dt
-        self.position += self.velocity * dt
+        self.position += (self.velocity - force_dt_half) * dt

@@ -44,8 +44,9 @@ class Emitter(base.Emitter):
         self.position.update(pygame.mouse.get_pos())
         self.particles = [p for p in self.particles if p.alive]
         force_dt = TOTAL_FORCE * dt
+        force_dt_half = force_dt / 2
         for p in self.particles:
-            p.update(dt, force_dt)
+            p.update(dt, force_dt, force_dt_half)
 
     def draw(self, target_surace):
         target_surace.fill(BACKGROUND_COLOR)
@@ -63,9 +64,15 @@ class Particle(base.Particle):
         self.y_max = y_max + PARTICLE_RADIUS
         self.alive = True
 
-    def update(self, dt, force_dt):
+    def update(self, dt, force_dt, force_dt_half):
         if self.position.y >= self.y_max:
             self.alive = False
         else:
             self.velocity += force_dt
-            self.position += self.velocity * dt
+            # Accurate position under gravity.:
+            self.position += (self.velocity - force_dt_half) * dt
+            # This one is inaccurate but also ok. The difference gets smaller
+            # with time and becomes less than 1 % after about 120 steps.
+            # self.position += self.velocity * dt
+
+
