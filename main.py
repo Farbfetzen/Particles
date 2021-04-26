@@ -68,6 +68,8 @@ while True:
             elif event.key == pygame.K_SPACE:
                 paused = not paused
                 pygame.mouse.set_visible(paused)
+            elif event.key == pygame.K_DELETE:
+                emitter.particles.clear()
         emitter.handle_event(event)
 
     if not paused:
