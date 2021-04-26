@@ -17,6 +17,7 @@ ACCELERATIONS = (
 # I could also implement forces instead of accelerations but that
 # is unnecessary as long as all particles have the same mass.
 TOTAL_ACCELERATION = sum(ACCELERATIONS, pygame.Vector2())
+EMITTER_VELOCITY_FACTOR = 0.2
 BOUNCE_VELOCITY_MODIFIER = 0.75
 MAX_BOUNCES = 10
 
@@ -29,6 +30,7 @@ class Emitter:
         self.is_emitting = False
         self.emission_timer = Timer(1 / PARTICLES_PER_SECOND)
         self.window_bottom = pygame.display.get_window_size()[1]
+        self.velocity = pygame.Vector2()
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -39,6 +41,7 @@ class Emitter:
     def update(self, dt):
         self.previous_position.update(self.position)
         self.position.update(pygame.mouse.get_pos())
+        self.velocity = (self.position - self.previous_position) / dt * EMITTER_VELOCITY_FACTOR
         velocity_change = TOTAL_ACCELERATION * dt
         velocity_change_half = velocity_change / 2
         alive_particles = []
@@ -62,17 +65,18 @@ class Emitter:
         if self.previous_position.distance_squared_to(self.position) > 0:
             for i in range(n_particles):
                 position = self.position.lerp(self.previous_position, i / n_particles)
-                self.particles.append(Particle(position, self.window_bottom))
+                self.particles.append(Particle(position, self.window_bottom, self.velocity))
         else:
             for _ in range(n_particles):
-                self.particles.append(Particle(self.position, self.window_bottom))
+                self.particles.append(Particle(self.position, self.window_bottom, self.velocity))
 
 
 class Particle:
-    def __init__(self, position, y_max):
+    def __init__(self, position, y_max, emitter_velocity):
         self.position = pygame.Vector2(position)
         self.velocity = pygame.Vector2(random.gauss(SPEED_MEAN, SPEED_SD), 0)
         self.velocity.rotate_ip(random.uniform(0, 360))
+        self.velocity += emitter_velocity
         self.y_max = y_max
         self.alive = True
         self.bounces = 0
