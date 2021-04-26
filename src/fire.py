@@ -75,6 +75,9 @@ class Emitter:
             for _ in range(n_particles):
                 self.particles.append(Particle(self.position))
 
+    def clear(self):
+        self.particles.clear()
+
 
 def make_particle_images():
     base_image = pygame.Surface((PARTICLE_DIAMETER, PARTICLE_DIAMETER), flags=pygame.SRCALPHA)

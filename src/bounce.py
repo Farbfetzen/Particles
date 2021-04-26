@@ -74,6 +74,9 @@ class Emitter:
                     Particle(self.position, self.window_right, self.window_bottom, self.velocity)
                 )
 
+    def clear(self):
+        self.particles.clear()
+
 
 class Particle:
     def __init__(self, position, x_max, y_max, emitter_velocity):
