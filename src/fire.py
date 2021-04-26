@@ -42,29 +42,30 @@ class Emitter:
         elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             self.is_emitting = False
 
-    def update(self, dt):
+    def update(self, dt, mouse_position):
         self.previous_position.update(self.position)
-        self.position.update(pygame.mouse.get_pos())
+        self.position.update(mouse_position)
         velocity_change = TOTAL_ACCELERATION * dt
         velocity_change_half = velocity_change / 2
         alive_particles = []
         for p in self.particles:
+            p.update(dt, velocity_change, velocity_change_half)
             if p.alive:
                 alive_particles.append(p)
-                p.update(dt, velocity_change, velocity_change_half)
         self.particles = alive_particles
         n_new_particles = self.emission_timer.update(dt)
         if self.is_emitting and n_new_particles > 0:
             self.emit(n_new_particles)
 
-    def draw(self, target_surace):
+    def draw(self, target_surface, fill_background=True):
         self.fire_surface.fill(TRANSPARENT_BLACK)
         for p in self.particles:
             self.fire_surface.blit(p.image, p.position, special_flags=pygame.BLEND_RGBA_ADD)
-        target_surace.fill(BACKGROUND_COLOR)
+        if fill_background:
+            target_surface.fill(BACKGROUND_COLOR)
         if not self.is_emitting:
-            pygame.draw.circle(target_surace, PARTICLE_COLOR, self.position, 3, 1)
-        target_surace.blit(self.fire_surface, (0, 0))
+            pygame.draw.circle(target_surface, PARTICLE_COLOR, self.position, 3, 1)
+        target_surface.blit(self.fire_surface, (0, 0))
 
     def emit(self, n_particles):
         if self.previous_position.distance_squared_to(self.position) > 0:

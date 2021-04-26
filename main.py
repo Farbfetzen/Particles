@@ -5,9 +5,10 @@ import sys
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 import pygame.freetype  # imports also pygame
 
+import src.bounce
 import src.default
 import src.fire
-import src.bounce
+import src.fireballs
 
 
 parser = argparse.ArgumentParser()
@@ -29,9 +30,10 @@ parser.add_argument(
 args = parser.parse_args()
 
 sims = {
+    "bounce": src.bounce,
     "default": src.default,
     "fire": src.fire,
-    "bounce": src.bounce
+    "fireballs": src.fireballs
 }
 if args.name not in sims:
     parser.error(f"name must be one of {list(sims.keys())}")
@@ -73,7 +75,7 @@ while True:
         emitter.handle_event(event)
 
     if not paused:
-        emitter.update(dt)
+        emitter.update(dt, pygame.mouse.get_pos())
 
     emitter.draw(window)
     if show_info:
