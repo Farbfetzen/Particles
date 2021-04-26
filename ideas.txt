@@ -14,6 +14,7 @@ Make more emitters.
 - random wind force for flickering fire?
 - fire.py with BLEND_RGBA_MAX looks cool
 - The main emitter emits more emitters. Maybe the mouse throws fireballs?
+- Portals from Doctor Strange
 
 
 Make a gui with pygame_gui:
