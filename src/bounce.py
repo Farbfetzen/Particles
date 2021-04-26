@@ -9,8 +9,8 @@ BACKGROUND_COLOR = pygame.Color(0, 0, 32)
 PARTICLE_COLOR = pygame.Color(220, 220, 220)
 PARTICLE_RADIUS = 5
 PARTICLES_PER_SECOND = 100
-SPEED_MEAN = 100  # pixels per second
-SPEED_SD = 25
+SPEED_MEAN = 50  # pixels per second
+SPEED_SD = 10
 ACCELERATIONS = (
     pygame.Vector2(0, 750),  # gravity
 )
@@ -83,7 +83,7 @@ class Particle:
         self.velocity += emitter_velocity
         self.x_min = -PARTICLE_RADIUS
         self.x_max = x_max + PARTICLE_RADIUS
-        self.y_max = y_max + PARTICLE_RADIUS
+        self.y_max = y_max - PARTICLE_RADIUS
         self.alive = True
         self.bounces = 0
 
