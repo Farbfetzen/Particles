@@ -29,7 +29,7 @@ class Emitter:
         self.time_since_last_emission = 0
         self.is_emitting = False
         self.emission_timer = Timer(1 / PARTICLES_PER_SECOND)
-        self.window_bottom = pygame.display.get_window_size()[1]
+        self.window_right, self.window_bottom = pygame.display.get_window_size()
         self.velocity = pygame.Vector2()
 
     def handle_event(self, event):
@@ -65,27 +65,33 @@ class Emitter:
         if self.previous_position.distance_squared_to(self.position) > 0:
             for i in range(n_particles):
                 position = self.position.lerp(self.previous_position, i / n_particles)
-                self.particles.append(Particle(position, self.window_bottom, self.velocity))
+                self.particles.append(
+                    Particle(position, self.window_right, self.window_bottom, self.velocity)
+                )
             # TODO: Can be optimized. If distance is 10 px and n_particles is 30
             #  then I need only 10 interpolation steps with 3 particles each.
             #  Currently it interpolates 30 times which is unnecessary.
             #  Attention: In that case use distance_to instead of distance_squared_to.
         else:
             for _ in range(n_particles):
-                self.particles.append(Particle(self.position, self.window_bottom, self.velocity))
+                self.particles.append(
+                    Particle(self.position, self.window_right, self.window_bottom, self.velocity)
+                )
 
 
 class Particle:
-    def __init__(self, position, y_max, emitter_velocity):
+    def __init__(self, position, x_max, y_max, emitter_velocity):
         self.position = pygame.Vector2(position)
         self.velocity = pygame.Vector2(random.gauss(SPEED_MEAN, SPEED_SD), 0)
         self.velocity.rotate_ip(random.uniform(0, 360))
         self.velocity += emitter_velocity
+        self.x_min = -PARTICLE_RADIUS
+        self.x_max = x_max + PARTICLE_RADIUS
         self.y_max = y_max + PARTICLE_RADIUS
         self.alive = True
 
     def update(self, dt, velocity_change, velocity_change_half):
-        if self.position.y >= self.y_max:
+        if self.position.y >= self.y_max or not self.x_min < self.position.x < self.x_max:
             self.alive = False
         else:
             self.velocity += velocity_change
