@@ -17,6 +17,7 @@ Action | Binding
 Emit particles | Left mouse button
 Pause/unpause | Space
 Delete all particles | Delete
+Next simulation | N
 Show miscellaneous info | F1
 Quit | Esc
 

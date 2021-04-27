@@ -39,6 +39,8 @@ if args.name not in sims:
     parser.error(f"name must be one of {list(sims.keys())}")
 sim = sims[args.name]
 
+sim_names = sorted(list(sims.keys()))
+sim_index = sim_names.index(args.name)
 
 pygame.init()
 window = pygame.display.set_mode(args.window_size)
@@ -72,6 +74,12 @@ while True:
                 pygame.mouse.set_visible(paused)
             elif event.key == pygame.K_DELETE:
                 emitter.clear()
+            elif event.key == pygame.K_n:
+                # Cycle through the simulations
+                sim_index = (sim_index + 1) % len(sim_names)
+                sim = sims[sim_names[sim_index]]
+                emitter = sim.Emitter()
+
         emitter.handle_event(event)
 
     if not paused:
@@ -82,11 +90,16 @@ while True:
         font.render_to(
             window,
             text_margin,
-            f"updates per second: {clock.get_fps():.0f}"
+            sim_names[sim_index]
         )
         font.render_to(
             window,
             text_margin + line_spacing,
+            f"updates per second: {clock.get_fps():.0f}"
+        )
+        font.render_to(
+            window,
+            text_margin + line_spacing * 2,
             f"number of particles: {len(emitter.particles)}"
         )
     pygame.display.flip()
