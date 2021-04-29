@@ -37,8 +37,6 @@ sims = {
 }
 if args.name not in sims:
     parser.error(f"name must be one of {list(sims.keys())}")
-sim = sims[args.name]
-
 sim_names = sorted(list(sims.keys()))
 sim_index = sim_names.index(args.name)
 
@@ -47,12 +45,12 @@ window = pygame.display.set_mode(args.window_size)
 pygame.display.set_caption("Particles")
 pygame.mouse.set_visible(False)
 clock = pygame.time.Clock()
-emitter = sim.Emitter()
+sim = sims[args.name].Simulation()
 
 show_info = True
 font = pygame.freetype.SysFont("inconsolate, consolas, monospace", 16)
 # invert background color but not the alpha value
-font.fgcolor = pygame.Color([255 - x for x in sim.BACKGROUND_COLOR[:3]])
+font.fgcolor = pygame.Color("white")
 line_spacing = pygame.Vector2(0, font.get_sized_height())
 text_margin = pygame.Vector2(5, 5)
 
@@ -73,19 +71,18 @@ while True:
                 paused = not paused
                 pygame.mouse.set_visible(paused)
             elif event.key == pygame.K_DELETE:
-                emitter.clear()
+                sim.clear()
             elif event.key == pygame.K_n:
                 # Cycle through the simulations
                 sim_index = (sim_index + 1) % len(sim_names)
-                sim = sims[sim_names[sim_index]]
-                emitter = sim.Emitter()
+                sim = sims[sim_names[sim_index]].Simulation()
 
-        emitter.handle_event(event)
+        sim.handle_event(event)
 
     if not paused:
-        emitter.update(dt, pygame.mouse.get_pos())
+        sim.update(dt, pygame.mouse.get_pos())
 
-    emitter.draw(window)
+    sim.draw(window)
     if show_info:
         font.render_to(
             window,
@@ -100,6 +97,6 @@ while True:
         font.render_to(
             window,
             text_margin + line_spacing * 2,
-            f"number of particles: {len(emitter.particles)}"
+            f"number of particles: {sim.n_particles}"
         )
     pygame.display.flip()

@@ -36,12 +36,6 @@ class Emitter:
         self.emission_timer = Timer(1 / PARTICLES_PER_SECOND)
         self.fire_surface = pygame.Surface(pygame.display.get_window_size(), flags=pygame.SRCALPHA)
 
-    def handle_event(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            self.is_emitting = True
-        elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-            self.is_emitting = False
-
     def update(self, dt, mouse_position):
         self.previous_position.update(self.position)
         self.position.update(mouse_position)
@@ -60,7 +54,7 @@ class Emitter:
     def draw(self, target_surface, fill_background=True):
         self.fire_surface.fill(TRANSPARENT_BLACK)
         for p in self.particles:
-            self.fire_surface.blit(p.image, p.position, special_flags=pygame.BLEND_RGBA_ADD)
+            self.fire_surface.blit(p.image, p.mouse_position, special_flags=pygame.BLEND_RGBA_ADD)
         if fill_background:
             target_surface.fill(BACKGROUND_COLOR)
         if not self.is_emitting:
@@ -75,9 +69,6 @@ class Emitter:
         else:
             for _ in range(n_particles):
                 self.particles.append(Particle(self.position))
-
-    def clear(self):
-        self.particles.clear()
 
 
 def make_particle_images():

@@ -51,9 +51,6 @@ class Emitter:
     def emit(self):
         self.particles.append(Particle(self.position))
 
-    def clear(self):
-        self.particles.clear()
-
 
 class Particle:
     def __init__(self, position):
@@ -77,7 +74,7 @@ class Particle:
             self.held_update(dt, position)
 
     def held_update(self, dt, position):
-        # Particle is held at mouse position.
+        # Particle is held at mouse mouse_position.
         self.position.update(position)
         self.emitter.update(dt, position)
 

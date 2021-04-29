@@ -32,12 +32,6 @@ class Emitter:
         self.window_right, self.window_bottom = pygame.display.get_window_size()
         self.velocity = pygame.Vector2()
 
-    def handle_event(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            self.is_emitting = True
-        elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-            self.is_emitting = False
-
     def update(self, dt, mouse_position):
         self.previous_position.update(self.position)
         self.position.update(mouse_position)
@@ -59,7 +53,7 @@ class Emitter:
         if not self.is_emitting:
             pygame.draw.circle(target_surface, PARTICLE_COLOR, self.position, 3, 1)
         for p in self.particles:
-            pygame.draw.circle(target_surface, PARTICLE_COLOR, p.position, PARTICLE_RADIUS)
+            pygame.draw.circle(target_surface, PARTICLE_COLOR, p.mouse_position, PARTICLE_RADIUS)
 
     def emit(self, n_particles):
         if self.previous_position.distance_squared_to(self.position) > 0:
@@ -73,9 +67,6 @@ class Emitter:
                 self.particles.append(
                     Particle(self.position, self.window_right, self.window_bottom, self.velocity)
                 )
-
-    def clear(self):
-        self.particles.clear()
 
 
 class Particle:
