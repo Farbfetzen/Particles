@@ -1,3 +1,8 @@
+# Improvement ideas:
+# - Vary the bouncyness. Each particle should have a slightly difference bounce modifier.
+#   This could prevent the formation of those layers.
+
+
 import random
 
 import pygame

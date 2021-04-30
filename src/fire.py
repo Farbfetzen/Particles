@@ -75,7 +75,7 @@ def make_particle_images():
     # Generate a list of images with varying transparency. Pygame doesn't let me mix
     # per pixel alpha and surface alpha so I have to blit a semitransparent layer
     # on the base image to achieve this effect.
-    # The index corresponsds to the transparency where 0 is transparent and 255 is opaque.
+    # The index corresponds to the transparency where 0 is transparent and 255 is opaque.
     images = []
     transparent_layer = pygame.Surface(base_image.get_size(), flags=pygame.SRCALPHA)
     for alpha in range(255, -1, -1):
