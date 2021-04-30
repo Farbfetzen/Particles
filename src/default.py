@@ -2,13 +2,13 @@ import random
 
 import pygame
 
-from src import base
+from src.base import Simulation, Emitter, Particle
 
 
-BACKGROUND_COLOR = pygame.Color(0, 0, 32)
 PARTICLE_COLOR = pygame.Color(220, 220, 220)
 PARTICLE_RADIUS = 5
 PARTICLES_PER_SECOND = 500
+EMISSION_DELAY = 1 / PARTICLES_PER_SECOND
 SPEED_MEAN = 150  # pixels per second
 SPEED_SD = 20
 ACCELERATIONS = (
@@ -21,22 +21,32 @@ TOTAL_ACCELERATION = sum(ACCELERATIONS, pygame.Vector2())
 EMITTER_VELOCITY_FACTOR = 0.2
 
 
-class Simulation(base.Simulation):
+class DefaultSimulation(Simulation):
     def __init__(self):
-        super().__init__(BACKGROUND_COLOR, PARTICLE_COLOR, PARTICLE_RADIUS, TOTAL_ACCELERATION)
-        self.emitters.append(Emitter(pygame.display.get_window_size()))
+        super().__init__(TOTAL_ACCELERATION)
+        self.emitters.append(DefaultEmitter(self.mouse_position))
 
 
-class Emitter(base.Emitter):
-    def __init__(self, window_size):
-        super().__init__(1 / PARTICLES_PER_SECOND, EMITTER_VELOCITY_FACTOR)
-        self.window_right, self.window_bottom = window_size
+class DefaultEmitter(Emitter):
+    def __init__(self, position):
+        super().__init__(position, EMISSION_DELAY, EMITTER_VELOCITY_FACTOR)
+        self.window_right, self.window_bottom = pygame.display.get_window_size()
 
     def add_particle(self, position):
-        return Particle(position, self.window_right, self.window_bottom, self.velocity)
+        return DefaultParticle(position, self.window_right, self.window_bottom, self.velocity)
 
 
-class Particle(base.Particle):
+def make_particle_image():
+    diameter = PARTICLE_RADIUS * 2
+    image = pygame.Surface((diameter, diameter))
+    pygame.draw.circle(image, PARTICLE_COLOR, (PARTICLE_RADIUS, PARTICLE_RADIUS), PARTICLE_RADIUS)
+    image.set_colorkey((0, 0, 0))
+    return image
+
+
+class DefaultParticle(Particle):
+    image = make_particle_image()
+
     def __init__(self, position, x_max, y_max, emitter_velocity):
         super().__init__(position)
         self.velocity = pygame.Vector2(random.gauss(SPEED_MEAN, SPEED_SD), 0)

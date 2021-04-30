@@ -2,13 +2,13 @@ import random
 
 import pygame
 
-from src import base
+from src.base import Simulation, Emitter, Particle
 
 
-BACKGROUND_COLOR = pygame.Color(0, 0, 32)
-PARTICLE_COLOR = pygame.Color(220, 220, 220)
+PARTICLE_COLOR = pygame.Color(64, 196, 64)
 PARTICLE_RADIUS = 5
 PARTICLES_PER_SECOND = 100
+EMISSION_DELAY = 1 / PARTICLES_PER_SECOND
 SPEED_MEAN = 50  # pixels per second
 SPEED_SD = 10
 ACCELERATIONS = (
@@ -22,24 +22,36 @@ BOUNCE_VELOCITY_MODIFIER = 0.75
 MAX_BOUNCES = 10
 
 
-class Simulation(base.Simulation):
+class BounceSimulation(Simulation):
     def __init__(self):
-        super().__init__(BACKGROUND_COLOR, PARTICLE_COLOR, PARTICLE_RADIUS, TOTAL_ACCELERATION)
-        self.emitters.append(Emitter(pygame.display.get_window_size()))
+        super().__init__(TOTAL_ACCELERATION)
+        self.emitters.append(BounceEmitter(self.mouse_position))
 
 
-class Emitter(base.Emitter):
-    def __init__(self, window_size):
-        super().__init__(1 / PARTICLES_PER_SECOND, EMITTER_VELOCITY_FACTOR)
-        self.window_right, self.window_bottom = window_size
+class BounceEmitter(Emitter):
+    def __init__(self, position):
+        super().__init__(position, EMISSION_DELAY, EMITTER_VELOCITY_FACTOR)
+        self.window_right, self.window_bottom = pygame.display.get_window_size()
 
     def add_particle(self, position):
-        return Particle(position, self.window_right, self.window_bottom, self.velocity)
+        return BounceParticle(position, self.window_right, self.window_bottom, self.velocity)
 
 
-class Particle(base.Particle):
+def make_particle_image():
+    diameter = PARTICLE_RADIUS * 2
+    image = pygame.Surface((diameter, diameter))
+    pygame.draw.circle(image, PARTICLE_COLOR, (PARTICLE_RADIUS, PARTICLE_RADIUS), PARTICLE_RADIUS)
+    image.set_colorkey((0, 0, 0))
+    return image
+
+
+class BounceParticle(Particle):
+    image = make_particle_image()
+
     def __init__(self, position, x_max, y_max, emitter_velocity):
         super().__init__(position)
+        # FIXME: draw image centered on position (by offsetting position and changing y_max),
+        #  see the fire particle.
         self.velocity = pygame.Vector2(random.gauss(SPEED_MEAN, SPEED_SD), 0)
         self.velocity.rotate_ip(random.uniform(0, 360))
         self.velocity += emitter_velocity

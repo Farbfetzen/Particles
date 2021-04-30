@@ -6,14 +6,15 @@ import random
 
 import pygame
 
-from src.helpers import linear_map, Timer
+from src.base import Simulation, Emitter, Particle
+from src.helpers import linear_map
 
 
-BACKGROUND_COLOR = pygame.Color(0, 0, 32)
 TRANSPARENT_BLACK = pygame.Color(0, 0, 0, 0)
-PARTICLE_COLOR = pygame.Color(226, 88, 34)
+FIRE_COLOR = pygame.Color(226, 88, 34)
 PARTICLE_DIAMETER = 51
 PARTICLES_PER_SECOND = 250
+EMISSION_DELAY = 1 / PARTICLES_PER_SECOND
 LIFETIME_MEAN = 1  # seconds
 LIFETIME_SD = 0.1
 # Time in seconds it takes for a particle to vanish. The particles start
@@ -27,48 +28,35 @@ ACCELERATIONS = (
 TOTAL_ACCELERATION = sum(ACCELERATIONS, pygame.Vector2())
 
 
-class Emitter:
+class FireSimulation(Simulation):
     def __init__(self):
-        self.position = pygame.Vector2()
-        self.previous_position = pygame.Vector2(self.position)
-        self.particles = []
-        self.is_emitting = False
-        self.emission_timer = Timer(1 / PARTICLES_PER_SECOND)
-        self.fire_surface = pygame.Surface(pygame.display.get_window_size(), flags=pygame.SRCALPHA)
+        super().__init__(TOTAL_ACCELERATION, cursor_color=FIRE_COLOR)
+        self.emitters.append(FireEmitter(self.mouse_position))
+        self.fire_surface = pygame.Surface(
+            pygame.display.get_window_size(),
+            flags=pygame.SRCALPHA
+        )
 
-    def update(self, dt, mouse_position):
-        self.previous_position.update(self.position)
-        self.position.update(mouse_position)
-        velocity_change = TOTAL_ACCELERATION * dt
-        velocity_change_half = velocity_change / 2
-        alive_particles = []
-        for p in self.particles:
-            p.update(dt, velocity_change, velocity_change_half)
-            if p.alive:
-                alive_particles.append(p)
-        self.particles = alive_particles
-        n_new_particles = self.emission_timer.update(dt)
-        if self.is_emitting and n_new_particles > 0:
-            self.emit(n_new_particles)
-
-    def draw(self, target_surface, fill_background=True):
+    def draw(self, target_surface):
         self.fire_surface.fill(TRANSPARENT_BLACK)
-        for p in self.particles:
-            self.fire_surface.blit(p.image, p.mouse_position, special_flags=pygame.BLEND_RGBA_ADD)
-        if fill_background:
-            target_surface.fill(BACKGROUND_COLOR)
+        for particle in self.particles:
+            self.fire_surface.blit(
+                particle.image,
+                particle.position,
+                special_flags=pygame.BLEND_RGBA_ADD
+            )
+        target_surface.fill(self.background_color)
         if not self.is_emitting:
-            pygame.draw.circle(target_surface, PARTICLE_COLOR, self.position, 3, 1)
+            pygame.draw.circle(target_surface, self.cursor_color, self.mouse_position, 3, 1)
         target_surface.blit(self.fire_surface, (0, 0))
 
-    def emit(self, n_particles):
-        if self.previous_position.distance_squared_to(self.position) > 0:
-            for i in range(n_particles):
-                position = self.position.lerp(self.previous_position, i / n_particles)
-                self.particles.append(Particle(position))
-        else:
-            for _ in range(n_particles):
-                self.particles.append(Particle(self.position))
+
+class FireEmitter(Emitter):
+    def __init__(self, position):
+        super().__init__(position, EMISSION_DELAY)
+
+    def add_particle(self, position):
+        return FireParticle(position)
 
 
 def make_particle_images():
@@ -81,7 +69,7 @@ def make_particle_images():
             position = (x, y)
             distance = center.distance_to(position)
             ratio = min(distance / max_distance, 1)
-            color = PARTICLE_COLOR.lerp(TRANSPARENT_BLACK, ratio)
+            color = FIRE_COLOR.lerp(TRANSPARENT_BLACK, ratio)
             base_image.set_at(position, color)
 
     # Generate a list of images with varying transparency. Pygame doesn't let me mix
@@ -99,31 +87,31 @@ def make_particle_images():
     return images
 
 
-class Particle:
+class FireParticle(Particle):
     images = make_particle_images()
 
     def __init__(self, position):
-        self.position = pygame.Vector2(position)
+        super().__init__(position)
         self.position = self.position.elementwise() - PARTICLE_DIAMETER // 2  # center the image
         self.velocity = pygame.Vector2(random.gauss(SPEED_MEAN, SPEED_SD), 0)
         self.velocity.rotate_ip(random.uniform(0, 360))
-        self.image = Particle.images[-1]
+        self.image = FireParticle.images[-1]
         self.time = 0
         self.lifetime_limit = random.gauss(LIFETIME_MEAN, LIFETIME_SD)
         self.vanish_start_time = self.lifetime_limit - VANISH_DURATION
-        self.alive = True
+        self.is_alive = True
 
     def update(self, dt, velocity_change, velocity_change_half):
         self.time += dt
         if self.time >= self.vanish_start_time:
             if self.time >= self.lifetime_limit:
-                self.alive = False
+                self.is_alive = False
                 return
             alpha = linear_map(
                 self.time,
                 self.vanish_start_time, self.lifetime_limit,
                 255, 0
             )
-            self.image = Particle.images[int(alpha)]
+            self.image = FireParticle.images[int(alpha)]
         self.velocity += velocity_change
         self.position += (self.velocity - velocity_change_half) * dt

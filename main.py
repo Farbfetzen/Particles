@@ -5,10 +5,10 @@ import sys
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 import pygame.freetype  # imports also pygame
 
-import src.bounce
-import src.default
-import src.fire
-import src.fireballs
+from src.bounce import BounceSimulation
+from src.default import DefaultSimulation
+from src.fire import FireSimulation
+from src.fireballs import FireballSimulation
 
 
 parser = argparse.ArgumentParser()
@@ -30,10 +30,10 @@ parser.add_argument(
 args = parser.parse_args()
 
 sims = {
-    "bounce": src.bounce,
-    "default": src.default,
-    "fire": src.fire,
-    "fireballs": src.fireballs
+    "bounce": BounceSimulation,
+    "default": DefaultSimulation,
+    "fire": FireSimulation,
+    "fireballs": FireballSimulation
 }
 if args.name not in sims:
     parser.error(f"name must be one of {list(sims.keys())}")
@@ -45,7 +45,7 @@ window = pygame.display.set_mode(args.window_size)
 pygame.display.set_caption("Particles")
 pygame.mouse.set_visible(False)
 clock = pygame.time.Clock()
-sim = sims[args.name].Simulation()
+sim = sims[args.name]()
 
 show_info = True
 font = pygame.freetype.SysFont("inconsolate, consolas, monospace", 16)
@@ -75,7 +75,7 @@ while True:
             elif event.key == pygame.K_n:
                 # Cycle through the simulations
                 sim_index = (sim_index + 1) % len(sim_names)
-                sim = sims[sim_names[sim_index]].Simulation()
+                sim = sims[sim_names[sim_index]]()
 
         sim.handle_event(event)
 
@@ -97,6 +97,6 @@ while True:
         font.render_to(
             window,
             text_margin + line_spacing * 2,
-            f"number of particles: {sim.n_particles}"
+            f"number of particles: {len(sim.particles)}"
         )
     pygame.display.flip()

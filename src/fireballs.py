@@ -1,91 +1,78 @@
 import pygame
 
-import src.fire
+from src.base import Emitter
+from src.fire import FireSimulation, FireParticle, EMISSION_DELAY
 
 
-BACKGROUND_COLOR = pygame.Color(0, 0, 32)
-CURSOR_COLOR = pygame.Color(220, 220, 220)
-ACCELERATIONS = (
+EMITTER_ACCELERATIONS = (
     pygame.Vector2(0, 750),  # gravity
 )
-TOTAL_ACCELERATION = sum(ACCELERATIONS, pygame.Vector2())
+TOTAL_EMITTER_ACCELERATION = sum(EMITTER_ACCELERATIONS, pygame.Vector2())
 EMITTER_VELOCITY_FACTOR = 0.25
 
 
-class Emitter:
+class FireballSimulation(FireSimulation):
     def __init__(self):
-        self.position = pygame.Vector2()
-        self.previous_position = pygame.Vector2(self.position)
-        self.particles = []
-        self.is_emitting = False
-        self.velocity = pygame.Vector2()
+        super().__init__()
+        self.emitters.clear()
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             self.is_emitting = True
-            self.emit()
+            self.emitters.append(FireballEmitter(self.mouse_position))
         elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             self.is_emitting = False
-            self.particles[-1].release(self.velocity)
+            self.emitters[-1].release()
 
     def update(self, dt, mouse_position):
-        self.previous_position.update(self.position)
-        self.position.update(mouse_position)
-        self.velocity = (self.position - self.previous_position) / dt * EMITTER_VELOCITY_FACTOR
-        velocity_change = TOTAL_ACCELERATION * dt
-        velocity_change_half = velocity_change / 2
+        self.mouse_position.update(mouse_position)
+        particle_velocity_change = self.total_acceleration * dt
+        particle_velocity_change_half = particle_velocity_change / 2
         alive_particles = []
-        for p in self.particles:
-            if p.alive:
-                alive_particles.append(p)
-                p.update(dt, self.position, velocity_change, velocity_change_half)
+        for particle in self.particles:
+            particle.update(dt, particle_velocity_change, particle_velocity_change_half)
+            if particle.is_alive:
+                alive_particles.append(particle)
         self.particles = alive_particles
+        emitter_velocity_change = TOTAL_EMITTER_ACCELERATION * dt
+        emitter_velocity_change_half = emitter_velocity_change / 2
+        for emitter in self.emitters:
+            # TODO: remove dead emitters from list
+            self.particles.extend(
+                emitter.update(
+                    dt,
+                    self.mouse_position,
+                    emitter_velocity_change,
+                    emitter_velocity_change_half
+                )
+            )
 
-    def draw(self, target_surface):
-        target_surface.fill(BACKGROUND_COLOR)
-        if not self.is_emitting:
-            pygame.draw.circle(target_surface, CURSOR_COLOR, self.position, 3, 1)
-        for p in self.particles:
-            p.draw(target_surface)
-
-    def emit(self):
-        self.particles.append(Particle(self.position))
+    def clear(self):
+        self.particles.clear()
+        self.emitters.clear()
 
 
-class Particle:
+class FireballEmitter(Emitter):
     def __init__(self, position):
-        self.position = pygame.Vector2(position)
-        self.velocity = pygame.Vector2()
-        self.alive = True
-        self.emitter = src.fire.Emitter()
-        self.emitter.position.update(self.position)
-        self.emitter.previous_position.update(self.position)
-        self.emitter.is_emitting = True
+        super().__init__(position, EMISSION_DELAY, EMITTER_VELOCITY_FACTOR)
         self.is_released = False
 
-    def release(self, emitter_velocity):
-        self.is_released = True
-        self.velocity.update(emitter_velocity)
-
-    def update(self, dt, position, velocity_change, velocity_change_half):
+    def update(self, dt, mouse_position, velocity_change, velocity_change_half):
         if self.is_released:
-            self.released_update(dt, velocity_change, velocity_change_half)
+            self.velocity += velocity_change
+            self.previous_position.update(self.position)
+            self.position += (self.velocity - velocity_change_half) * dt
+            # TODO: stop emitting particles if position is outside a certain range.
+            # TODO: set self.is_alive = False if fallen below a certain range or after some time.
+            n_new_particles = self.emission_timer.update(dt)
+            if n_new_particles > 0:
+                return self.emit(n_new_particles)
         else:
-            self.held_update(dt, position)
+            return super().update(dt, mouse_position, True)
+        return []
 
-    def held_update(self, dt, position):
-        # Particle is held at mouse mouse_position.
-        self.position.update(position)
-        self.emitter.update(dt, position)
+    def add_particle(self, position):
+        return FireParticle(position)
 
-    def released_update(self, dt, velocity_change, velocity_change_half):
-        # Particle has been released from the mouse.
-        if not self.emitter.particles:
-            self.alive = False
-            return
-        self.velocity += velocity_change
-        self.position += (self.velocity - velocity_change_half) * dt
-        self.emitter.update(dt, self.position)
-
-    def draw(self, target_surface):
-        self.emitter.draw(target_surface, False)
+    def release(self):
+        self.is_released = True
