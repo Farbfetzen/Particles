@@ -14,27 +14,20 @@ def linear_map(x, in_start, in_end, out_start=0, out_end=1):
 
 
 class Timer:
-    def __init__(self, seconds):
-        """
-        A simple timer. It differs from EventTimer in that it doesn't
-        post events to the event queue and instead returns the number
-        of events since the previous update.
-        :param seconds: The time between events in seconds.
-        """
+    def __init__(self, seconds, start_almost_full=True):
         self.delay = seconds
-        self.time = 0
+        self.initial_time = seconds - 0.000001 if start_almost_full else 0
+        self.time = self.initial_time
 
     def update(self, dt):
-        """
-        Update the timer and post the event if it is time to do so.
-        :param dt: The delta time in seconds.
-        :return: The number of events since the previous update.
-        """
         self.time += dt
         if self.time >= self.delay:
             n, self.time = divmod(self.time, self.delay)
             return int(n)
         return 0
+
+    def reset(self):
+        self.time = self.initial_time
 
 
 class EventTimer:

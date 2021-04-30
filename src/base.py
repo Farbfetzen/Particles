@@ -20,6 +20,8 @@ class Simulation:
             self.is_emitting = True
         elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             self.is_emitting = False
+            for emitter in self.emitters:
+                emitter.emission_timer.reset()
 
     def update(self, dt, mouse_position):
         self.mouse_position.update(mouse_position)
@@ -62,9 +64,11 @@ class Emitter:
             self.velocity.update(
                 (self.position - self.previous_position) / dt * self.emitter_velocity_factor
             )
-        n_new_particles = self.emission_timer.update(dt)
-        if is_emitting and n_new_particles > 0:
-            return self.emit(n_new_particles)
+
+        if is_emitting:
+            n_new_particles = self.emission_timer.update(dt)
+            if n_new_particles > 0:
+                return self.emit(n_new_particles)
         return []
 
     def emit(self, n_particles):
