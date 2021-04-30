@@ -32,15 +32,13 @@ class Emitter(base.Emitter):
         super().__init__(1 / PARTICLES_PER_SECOND, EMITTER_VELOCITY_FACTOR)
         self.window_right, self.window_bottom = window_size
 
-    def add_particle(self, position, particle_list):
-        particle_list.append(
-            Particle(position, self.window_right, self.window_bottom, self.velocity)
-        )
+    def add_particle(self, position):
+        return Particle(position, self.window_right, self.window_bottom, self.velocity)
 
 
-class Particle:
+class Particle(base.Particle):
     def __init__(self, position, x_max, y_max, emitter_velocity):
-        self.position = pygame.Vector2(position)
+        super().__init__(position)
         self.velocity = pygame.Vector2(random.gauss(SPEED_MEAN, SPEED_SD), 0)
         self.velocity.rotate_ip(random.uniform(0, 360))
         self.velocity += emitter_velocity

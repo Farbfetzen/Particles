@@ -2,7 +2,7 @@ import random
 
 import pygame
 
-from src.helpers import Timer
+from src import base
 
 
 BACKGROUND_COLOR = pygame.Color(0, 0, 32)
@@ -22,63 +22,31 @@ BOUNCE_VELOCITY_MODIFIER = 0.75
 MAX_BOUNCES = 10
 
 
-class Emitter:
+class Simulation(base.Simulation):
     def __init__(self):
-        self.position = pygame.Vector2()
-        self.previous_position = pygame.Vector2(self.position)
-        self.particles = []
-        self.is_emitting = False
-        self.emission_timer = Timer(1 / PARTICLES_PER_SECOND)
-        self.window_right, self.window_bottom = pygame.display.get_window_size()
-        self.velocity = pygame.Vector2()
-
-    def update(self, dt, mouse_position):
-        self.previous_position.update(self.position)
-        self.position.update(mouse_position)
-        self.velocity = (self.position - self.previous_position) / dt * EMITTER_VELOCITY_FACTOR
-        velocity_change = TOTAL_ACCELERATION * dt
-        velocity_change_half = velocity_change / 2
-        alive_particles = []
-        for p in self.particles:
-            p.update(dt, velocity_change, velocity_change_half)
-            if p.alive:
-                alive_particles.append(p)
-        self.particles = alive_particles
-        n_new_particles = self.emission_timer.update(dt)
-        if self.is_emitting and n_new_particles > 0:
-            self.emit(n_new_particles)
-
-    def draw(self, target_surface):
-        target_surface.fill(BACKGROUND_COLOR)
-        if not self.is_emitting:
-            pygame.draw.circle(target_surface, PARTICLE_COLOR, self.position, 3, 1)
-        for p in self.particles:
-            pygame.draw.circle(target_surface, PARTICLE_COLOR, p.mouse_position, PARTICLE_RADIUS)
-
-    def emit(self, n_particles):
-        if self.previous_position.distance_squared_to(self.position) > 0:
-            for i in range(n_particles):
-                position = self.position.lerp(self.previous_position, i / n_particles)
-                self.particles.append(
-                    Particle(position, self.window_right, self.window_bottom, self.velocity)
-                )
-        else:
-            for _ in range(n_particles):
-                self.particles.append(
-                    Particle(self.position, self.window_right, self.window_bottom, self.velocity)
-                )
+        super().__init__(BACKGROUND_COLOR, PARTICLE_COLOR, PARTICLE_RADIUS, TOTAL_ACCELERATION)
+        self.emitters.append(Emitter(pygame.display.get_window_size()))
 
 
-class Particle:
+class Emitter(base.Emitter):
+    def __init__(self, window_size):
+        super().__init__(1 / PARTICLES_PER_SECOND, EMITTER_VELOCITY_FACTOR)
+        self.window_right, self.window_bottom = window_size
+
+    def add_particle(self, position):
+        return Particle(position, self.window_right, self.window_bottom, self.velocity)
+
+
+class Particle(base.Particle):
     def __init__(self, position, x_max, y_max, emitter_velocity):
-        self.position = pygame.Vector2(position)
+        super().__init__(position)
         self.velocity = pygame.Vector2(random.gauss(SPEED_MEAN, SPEED_SD), 0)
         self.velocity.rotate_ip(random.uniform(0, 360))
         self.velocity += emitter_velocity
         self.x_min = -PARTICLE_RADIUS
         self.x_max = x_max + PARTICLE_RADIUS
         self.y_max = y_max - PARTICLE_RADIUS
-        self.alive = True
+        self.is_alive = True
         self.bounces = 0
 
     def update(self, dt, velocity_change, velocity_change_half):
@@ -88,7 +56,7 @@ class Particle:
             self.position.y = self.y_max * 2 - self.position.y
             self.velocity.y = -self.velocity.y * BOUNCE_VELOCITY_MODIFIER
             self.bounces += 1
-            if self.bounces > MAX_BOUNCES:
-                self.alive = False
+            if self.bounces >= MAX_BOUNCES:
+                self.is_alive = False
         elif not self.x_min < self.position.x < self.x_max:
-            self.alive = False
+            self.is_alive = False

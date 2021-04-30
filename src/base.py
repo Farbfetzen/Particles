@@ -39,7 +39,9 @@ class Simulation:
                 alive_particles.append(particle)
         self.particles = alive_particles
         for emitter in self.emitters:
-            emitter.update(dt, self.mouse_position, self.is_emitting, self.particles)
+            self.particles.extend(
+                emitter.update(dt, self.mouse_position, self.is_emitting)
+            )
 
     def draw(self, target_surface):
         target_surface.fill(self.background_color)
@@ -61,7 +63,7 @@ class Emitter(ABC):
         self.emitter_velocity_factor = emitter_velocity_factor
         self.velocity = pygame.Vector2() if emitter_velocity_factor != 0 else None
 
-    def update(self, dt, mouse_position, is_emitting, particle_list):
+    def update(self, dt, mouse_position, is_emitting):
         self.previous_position.update(self.position)
         self.position.update(mouse_position)
         if self.velocity is not None:
@@ -70,26 +72,29 @@ class Emitter(ABC):
             )
         n_new_particles = self.emission_timer.update(dt)
         if is_emitting and n_new_particles > 0:
-            self.emit(n_new_particles, particle_list)
+            return self.emit(n_new_particles)
+        return []
 
-    def emit(self, n_particles, particle_list):
+    def emit(self, n_particles):
         if self.previous_position.distance_squared_to(self.position) > 0:
+            new_particles = []
             for i in range(n_particles):
                 position = self.position.lerp(self.previous_position, i / n_particles)
-                self.add_particle(position, particle_list)
+                new_particles.append(self.add_particle(position))
         else:
-            for _ in range(n_particles):
-                self.add_particle(self.position, particle_list)
+            new_particles = [self.add_particle(self.position) for _ in range(n_particles)]
+        return new_particles
 
     @abstractmethod
-    def add_particle(self, position, particle_list):
-        # Instantiate a particle at position and append it to the list.
+    def add_particle(self, position):
+        # Instantiate a particle at position and return it.
         pass
 
 
-# class Particle:
-#     def __init__(self):
-#         pass
-#
-#     def update(self, dt):
-#         pass
+class Particle(ABC):
+    def __init__(self, position):
+        self.position = pygame.Vector2(position)
+
+    @abstractmethod
+    def update(self, dt, velocity_change, velocity_change_half):
+        pass
