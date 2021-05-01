@@ -20,13 +20,16 @@ BOUNCE_MODIFIER_MIN = 0.8
 BOUNCE_MODIFIER_MAX = 0.9
 LIFETIME_MEAN = 10
 LIFETIME_SD = 2
+PARTICLE_LIMIT_RECT = pygame.Rect(0, 0, 0, 0)
 
 
 class BounceSimulation(Simulation):
     def __init__(self):
         super().__init__(PARTICLE_ACCELERATION)
         self.emitters.append(BounceEmitter(self.mouse_position))
-        BounceParticle.set_limits()
+        PARTICLE_LIMIT_RECT.size = pygame.display.get_window_size()
+        PARTICLE_LIMIT_RECT.width -= PARTICLE_DIAMETER
+        PARTICLE_LIMIT_RECT.height -= PARTICLE_DIAMETER
 
 
 class BounceEmitter(Emitter):
@@ -46,18 +49,6 @@ def make_particle_image():
 
 class BounceParticle(Particle):
     image = make_particle_image()
-    x_min = 0
-    y_min = 0
-    x_max = 1200
-    y_max = 800 - PARTICLE_DIAMETER
-
-    @classmethod
-    def set_limits(cls):
-        # Adjust particle position limits in case the window size
-        # was changed via the command line argument:
-        width, height = pygame.display.get_window_size()
-        cls.x_max = width - PARTICLE_DIAMETER
-        cls.y_max = height - PARTICLE_DIAMETER
 
     def __init__(self, position, emitter_velocity):
         super().__init__(position)
@@ -79,15 +70,15 @@ class BounceParticle(Particle):
             self.is_alive = False
             return
         self.position += self.velocity * dt
-        if self.position.x <= BounceParticle.x_min:
+        if self.position.x <= PARTICLE_LIMIT_RECT.left:
             self.position.x = -self.position.x
             self.velocity.x *= self.bounce_velocity_modifier
-        elif self.position.x >= BounceParticle.x_max:
-            self.position.x = BounceParticle.x_max * 2 - self.position.x
+        elif self.position.x >= PARTICLE_LIMIT_RECT.right:
+            self.position.x = PARTICLE_LIMIT_RECT.right * 2 - self.position.x
             self.velocity.x *= self.bounce_velocity_modifier
-        if self.position.y <= BounceParticle.y_min:
+        if self.position.y <= PARTICLE_LIMIT_RECT.top:
             self.position.y = -self.position.y
             self.velocity.y *= self.bounce_velocity_modifier
-        elif self.position.y >= BounceParticle.y_max:
-            self.position.y = BounceParticle.y_max * 2 - self.position.y
+        elif self.position.y >= PARTICLE_LIMIT_RECT.bottom:
+            self.position.y = PARTICLE_LIMIT_RECT.bottom * 2 - self.position.y
             self.velocity.y *= self.bounce_velocity_modifier

@@ -17,13 +17,16 @@ PARTICLE_ACCELERATION = pygame.Vector2(0, 750)  # gravity
 # is unnecessary as long as all particles have the same mass.
 # Modify the emitter velocity affecting the initial particle velocity:
 EMITTER_VELOCITY_FACTOR = 0.2
+PARTICLE_LIMIT_RECT = pygame.Rect(-PARTICLE_DIAMETER, -PARTICLE_DIAMETER, 0, 0)
 
 
 class DefaultSimulation(Simulation):
     def __init__(self):
         super().__init__(PARTICLE_ACCELERATION)
         self.emitters.append(DefaultEmitter(self.mouse_position))
-        DefaultParticle.set_limits()
+        PARTICLE_LIMIT_RECT.size = pygame.display.get_window_size()
+        PARTICLE_LIMIT_RECT.width += PARTICLE_DIAMETER
+        PARTICLE_LIMIT_RECT.height += PARTICLE_DIAMETER
 
 
 class DefaultEmitter(Emitter):
@@ -43,15 +46,6 @@ def make_particle_image():
 
 class DefaultParticle(Particle):
     image = make_particle_image()
-    x_min = -PARTICLE_DIAMETER
-    x_max = 1200
-    y_max = 800
-
-    @classmethod
-    def set_limits(cls):
-        # Adjust particle position limits in case the window size
-        # was changed via the command line argument:
-        cls.x_max, cls.y_max = pygame.display.get_window_size()
 
     def __init__(self, position, emitter_velocity):
         super().__init__(position)
@@ -61,13 +55,8 @@ class DefaultParticle(Particle):
         self.velocity += emitter_velocity
 
     def update(self, dt, velocity_change, velocity_change_half):
-        if self.position.y >= DefaultParticle.y_max or \
-                not DefaultParticle.x_min < self.position.x < DefaultParticle.x_max:
+        self.velocity += velocity_change
+        self.position += (self.velocity - velocity_change_half) * dt
+        if PARTICLE_LIMIT_RECT.bottom < self.position.y or \
+                not PARTICLE_LIMIT_RECT.left < self.position.x < PARTICLE_LIMIT_RECT.right:
             self.is_alive = False
-        else:
-            self.velocity += velocity_change
-            # Accurate mouse_position under gravity.:
-            self.position += (self.velocity - velocity_change_half) * dt
-            # This one is inaccurate but also ok. The difference gets smaller
-            # with time and becomes less than 1 % after about 120 steps.
-            # self.mouse_position += self.velocity * dt

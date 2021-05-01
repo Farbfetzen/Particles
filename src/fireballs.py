@@ -6,15 +6,24 @@ from src.fire import FireSimulation, FireParticle, EMISSION_DELAY
 
 EMITTER_ACCELERATION = pygame.Vector2(0, 750)  # gravity
 EMITTER_VELOCITY_FACTOR = 0.25
+# Padding estimated from the size of the flames.
 EMITTER_LIMIT_RECT_PADDING_X = 300
 EMITTER_LIMIT_RECT_PADDING_Y = 400
+EMITTER_LIMIT_RECT = pygame.Rect(
+    -EMITTER_LIMIT_RECT_PADDING_X,
+    -EMITTER_LIMIT_RECT_PADDING_Y,
+    0,
+    0
+)
 
 
 class FireballSimulation(FireSimulation):
     def __init__(self):
         super().__init__()
         self.emitters.clear()
-        FireballEmitter.set_limits()
+        EMITTER_LIMIT_RECT.size = pygame.display.get_window_size()
+        EMITTER_LIMIT_RECT.width += EMITTER_LIMIT_RECT_PADDING_X * 2
+        EMITTER_LIMIT_RECT.height += EMITTER_LIMIT_RECT_PADDING_Y * 2
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -57,19 +66,6 @@ class FireballSimulation(FireSimulation):
 
 
 class FireballEmitter(Emitter):
-    limit_rect = pygame.Rect(
-        -EMITTER_LIMIT_RECT_PADDING_X,
-        -EMITTER_LIMIT_RECT_PADDING_Y,
-        1200 + EMITTER_LIMIT_RECT_PADDING_X * 2,
-        800 + EMITTER_LIMIT_RECT_PADDING_Y * 2
-    )
-
-    @classmethod
-    def set_limits(cls):
-        cls.limit_rect.size = pygame.display.get_window_size()
-        cls.limit_rect.width += EMITTER_LIMIT_RECT_PADDING_X * 2
-        cls.limit_rect.height += EMITTER_LIMIT_RECT_PADDING_Y * 2
-
     def __init__(self, position):
         super().__init__(position, EMISSION_DELAY, EMITTER_VELOCITY_FACTOR)
         self.is_released = False
@@ -80,11 +76,11 @@ class FireballEmitter(Emitter):
             self.velocity += velocity_change
             self.previous_position.update(self.position)
             self.position += (self.velocity - velocity_change_half) * dt
-            if FireballEmitter.limit_rect.collidepoint(self.position):
+            if EMITTER_LIMIT_RECT.collidepoint(self.position):
                 n_new_particles = self.emission_timer.update(dt)
                 if n_new_particles > 0:
                     return self.emit(n_new_particles)
-            elif FireballEmitter.limit_rect.top < self.position.y:
+            elif EMITTER_LIMIT_RECT.top < self.position.y:
                 self.is_alive = False
         else:
             return super().update(dt, mouse_position, True)

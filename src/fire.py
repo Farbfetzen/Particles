@@ -20,17 +20,21 @@ VANISH_DURATION = 0.5
 SPEED_MEAN = 100  # pixels per second
 SPEED_SD = 25
 PARTICLE_ACCELERATION = pygame.Vector2(0, -400)  # updraft
+PARTICLE_LIMIT_RECT = pygame.Rect(-PARTICLE_DIAMETER, -PARTICLE_DIAMETER, 0, 0)
 
 
 class FireSimulation(Simulation):
     def __init__(self):
         super().__init__(PARTICLE_ACCELERATION, cursor_color=FIRE_COLOR)
-        FireParticle.set_limits()
         self.emitters.append(FireEmitter(self.mouse_position))
+        window_size = pygame.display.get_window_size()
         self.fire_surface = pygame.Surface(
-            pygame.display.get_window_size(),
+            window_size,
             flags=pygame.SRCALPHA
         )
+        PARTICLE_LIMIT_RECT.size = window_size
+        PARTICLE_LIMIT_RECT.width += PARTICLE_DIAMETER
+        PARTICLE_LIMIT_RECT.height += PARTICLE_DIAMETER * 3  # allow to briefly go below the window
 
     def draw(self, target_surface):
         self.fire_surface.fill(TRANSPARENT_BLACK)
@@ -84,18 +88,6 @@ def make_particle_images():
 
 class FireParticle(Particle):
     images = make_particle_images()
-    limit_rect = pygame.Rect(
-        -PARTICLE_DIAMETER,
-        -PARTICLE_DIAMETER,
-        1200 + PARTICLE_DIAMETER,
-        800 + PARTICLE_DIAMETER * 3,  # allow to briefly go below the window bottom
-    )
-
-    @classmethod
-    def set_limits(cls):
-        cls.limit_rect.size = pygame.display.get_window_size()
-        cls.limit_rect.width += PARTICLE_DIAMETER
-        cls.limit_rect.height += PARTICLE_DIAMETER * 3
 
     def __init__(self, position):
         super().__init__(position)
@@ -121,5 +113,5 @@ class FireParticle(Particle):
             self.image = FireParticle.images[int(alpha)]
         self.velocity += velocity_change
         self.position += (self.velocity - velocity_change_half) * dt
-        if not FireParticle.limit_rect.collidepoint(self.position):
+        if not PARTICLE_LIMIT_RECT.collidepoint(self.position):
             self.is_alive = False
