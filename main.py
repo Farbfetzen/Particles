@@ -48,7 +48,7 @@ clock = pygame.time.Clock()
 sim = sims[args.name]()
 
 show_info = True
-font = pygame.freetype.SysFont(("inconsolata", "consolas", "monospace"), 16)
+font = pygame.freetype.SysFont(("consolas", "inconsolata", "monospace"), 16)
 font.fgcolor = pygame.Color((220, 220, 220))
 line_spacing = pygame.Vector2(0, font.get_sized_height())
 text_margin = pygame.Vector2(5, 5)
