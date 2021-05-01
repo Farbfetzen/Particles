@@ -20,7 +20,8 @@ class FireballSimulation(FireSimulation):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             self.emitters.append(FireballEmitter(self.mouse_position))
         elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-            self.emitters[-1].release()
+            if self.emitters:
+                self.emitters[-1].release()
 
     def update(self, dt, mouse_position):
         self.mouse_position.update(mouse_position)
