@@ -1,7 +1,6 @@
 import pygame
 import pygame.freetype
 
-import src.shared_constants as const
 from src.bounce import BounceSimulation
 from src.default import DefaultSimulation
 from src.fire import FireSimulation
@@ -17,15 +16,16 @@ SIMS = {
 SIM_NAMES = sorted(list(SIMS.keys()))
 
 
-def run(sim_name):
+def run(sim_name, window_size):
     pygame.init()
-    window = pygame.display.set_mode(const.WINDOW_SIZE)
+    window = pygame.display.set_mode(window_size)
     pygame.display.set_caption("Particles")
     pygame.mouse.set_visible(False)
     clock = pygame.time.Clock()
+    paused = False
+
     sim = SIMS[sim_name]()
     sim_index = SIM_NAMES.index(sim_name)
-    paused = False
 
     show_info = True
     font = pygame.freetype.SysFont(("consolas", "inconsolata", "monospace"), 16)
@@ -34,7 +34,7 @@ def run(sim_name):
     text_margin = pygame.Vector2(5, 5)
 
     while True:
-        dt = clock.tick(const.FPS) / 1000  # in seconds
+        dt = clock.tick(60) / 1000  # in seconds
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

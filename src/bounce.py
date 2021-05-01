@@ -30,15 +30,15 @@ class BounceSimulation(Simulation):
     def __init__(self):
         super().__init__(TOTAL_ACCELERATION)
         self.emitters.append(BounceEmitter(self.mouse_position))
+        BounceParticle.set_limits()
 
 
 class BounceEmitter(Emitter):
     def __init__(self, position):
         super().__init__(position, EMISSION_DELAY, EMITTER_VELOCITY_FACTOR)
-        self.window_right, self.window_bottom = pygame.display.get_window_size()
 
     def add_particle(self, position):
-        return BounceParticle(position, self.window_right, self.window_bottom, self.velocity)
+        return BounceParticle(position, self.velocity)
 
 
 def make_particle_image():
@@ -50,18 +50,24 @@ def make_particle_image():
 
 class BounceParticle(Particle):
     image = make_particle_image()
+    x_min = -PARTICLE_DIAMETER
+    x_max = 1200
+    y_max = 800 - PARTICLE_DIAMETER
 
-    def __init__(self, position, x_max, y_max, emitter_velocity):
+    @classmethod
+    def set_limits(cls):
+        # Adjust particle position limits in case the window size
+        # was changed via the command line argument:
+        width, height = pygame.display.get_window_size()
+        cls.x_max = width
+        cls.y_max = height - PARTICLE_DIAMETER
+
+    def __init__(self, position, emitter_velocity):
         super().__init__(position)
-        # FIXME: draw image centered on position (by offsetting position and changing y_max),
-        #  see the fire particle.
         self.position = self.position.elementwise() - PARTICLE_RADIUS  # center the image
         self.velocity = pygame.Vector2(random.gauss(SPEED_MEAN, SPEED_SD), 0)
         self.velocity.rotate_ip(random.uniform(0, 360))
         self.velocity += emitter_velocity
-        self.x_min = -PARTICLE_DIAMETER
-        self.x_max = x_max
-        self.y_max = y_max - PARTICLE_DIAMETER
         self.bounces = 0
         self.bounce_velocity_modifier = -linear_map(
             random.betavariate(BOUNCE_MODIFIER_ALPHABETA, BOUNCE_MODIFIER_ALPHABETA),
@@ -72,11 +78,11 @@ class BounceParticle(Particle):
     def update(self, dt, velocity_change, velocity_change_half):
         self.velocity += velocity_change
         self.position += (self.velocity - velocity_change_half) * dt
-        if self.position.y >= self.y_max:
-            self.position.y = self.y_max * 2 - self.position.y
+        if self.position.y >= BounceParticle.y_max:
+            self.position.y = BounceParticle.y_max * 2 - self.position.y
             self.velocity.y *= self.bounce_velocity_modifier
             self.bounces += 1
             if self.bounces >= MAX_BOUNCES:
                 self.is_alive = False
-        elif not self.x_min < self.position.x < self.x_max:
+        elif not BounceParticle.x_min < self.position.x < BounceParticle.x_max:
             self.is_alive = False

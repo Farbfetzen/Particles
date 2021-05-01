@@ -26,15 +26,15 @@ class DefaultSimulation(Simulation):
     def __init__(self):
         super().__init__(TOTAL_ACCELERATION)
         self.emitters.append(DefaultEmitter(self.mouse_position))
+        DefaultParticle.set_limits()
 
 
 class DefaultEmitter(Emitter):
     def __init__(self, position):
         super().__init__(position, EMISSION_DELAY, EMITTER_VELOCITY_FACTOR)
-        self.window_right, self.window_bottom = pygame.display.get_window_size()
 
     def add_particle(self, position):
-        return DefaultParticle(position, self.window_right, self.window_bottom, self.velocity)
+        return DefaultParticle(position, self.velocity)
 
 
 def make_particle_image():
@@ -46,19 +46,26 @@ def make_particle_image():
 
 class DefaultParticle(Particle):
     image = make_particle_image()
+    x_min = -PARTICLE_DIAMETER
+    x_max = 1200
+    y_max = 800
 
-    def __init__(self, position, x_max, y_max, emitter_velocity):
+    @classmethod
+    def set_limits(cls):
+        # Adjust particle position limits in case the window size
+        # was changed via the command line argument:
+        cls.x_max, cls.y_max = pygame.display.get_window_size()
+
+    def __init__(self, position, emitter_velocity):
         super().__init__(position)
         self.position = self.position.elementwise() - PARTICLE_RADIUS  # center the image
         self.velocity = pygame.Vector2(random.gauss(SPEED_MEAN, SPEED_SD), 0)
         self.velocity.rotate_ip(random.uniform(0, 360))
         self.velocity += emitter_velocity
-        self.x_min = -PARTICLE_DIAMETER
-        self.x_max = x_max
-        self.y_max = y_max
 
     def update(self, dt, velocity_change, velocity_change_half):
-        if self.position.y >= self.y_max or not self.x_min < self.position.x < self.x_max:
+        if self.position.y >= DefaultParticle.y_max or \
+                not DefaultParticle.x_min < self.position.x < DefaultParticle.x_max:
             self.is_alive = False
         else:
             self.velocity += velocity_change
