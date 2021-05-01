@@ -1,17 +1,13 @@
-# Improvement ideas:
-# - Vary the bouncyness. Each particle should have a slightly difference bounce modifier.
-#   This could prevent the formation of those layers.
-
-
 import random
 
 import pygame
 
 from src.base import Simulation, Emitter, Particle
+from src.helpers import linear_map
 
 
 PARTICLE_COLOR = pygame.Color(64, 196, 64)
-PARTICLE_DIAMETER = 20
+PARTICLE_DIAMETER = 10
 PARTICLE_RADIUS = PARTICLE_DIAMETER / 2
 PARTICLES_PER_SECOND = 100
 EMISSION_DELAY = 1 / PARTICLES_PER_SECOND
@@ -24,7 +20,9 @@ ACCELERATIONS = (
 # is unnecessary as long as all particles have the same mass.
 TOTAL_ACCELERATION = sum(ACCELERATIONS, pygame.Vector2())
 EMITTER_VELOCITY_FACTOR = 0.2
-BOUNCE_VELOCITY_MODIFIER = 0.75
+BOUNCE_MODIFIER_ALPHABETA = 3
+BOUNCE_MODIFIER_MIN = 0.7
+BOUNCE_MODIFIER_MAX = 0.8
 MAX_BOUNCES = 10
 
 
@@ -65,13 +63,18 @@ class BounceParticle(Particle):
         self.x_max = x_max
         self.y_max = y_max - PARTICLE_DIAMETER
         self.bounces = 0
+        self.bounce_velocity_modifier = -linear_map(
+            random.betavariate(BOUNCE_MODIFIER_ALPHABETA, BOUNCE_MODIFIER_ALPHABETA),
+            out_start=BOUNCE_MODIFIER_MIN,
+            out_end=BOUNCE_MODIFIER_MAX
+        )
 
     def update(self, dt, velocity_change, velocity_change_half):
         self.velocity += velocity_change
         self.position += (self.velocity - velocity_change_half) * dt
         if self.position.y >= self.y_max:
             self.position.y = self.y_max * 2 - self.position.y
-            self.velocity.y = -self.velocity.y * BOUNCE_VELOCITY_MODIFIER
+            self.velocity.y *= self.bounce_velocity_modifier
             self.bounces += 1
             if self.bounces >= MAX_BOUNCES:
                 self.is_alive = False

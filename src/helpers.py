@@ -1,7 +1,7 @@
 """Miscellaneous helper functions and classes."""
 
 
-def linear_map(x, in_start, in_end, out_start=0, out_end=1):
+def linear_map(x, in_start=0, in_end=1, out_start=0, out_end=1):
     """
     Linearly map (scale) a number from one range to another range.
     Can also be used for linear interpolation. And you can invert
