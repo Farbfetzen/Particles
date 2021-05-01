@@ -23,15 +23,12 @@ LIFETIME_SD = 0.1
 VANISH_DURATION = 0.5
 SPEED_MEAN = 100  # pixels per second
 SPEED_SD = 25
-ACCELERATIONS = (
-    pygame.Vector2(0, -400),  # updraft
-)
-TOTAL_ACCELERATION = sum(ACCELERATIONS, pygame.Vector2())
+PARTICLE_ACCELERATION = pygame.Vector2(0, -400)  # updraft
 
 
 class FireSimulation(Simulation):
     def __init__(self):
-        super().__init__(TOTAL_ACCELERATION, cursor_color=FIRE_COLOR)
+        super().__init__(PARTICLE_ACCELERATION, cursor_color=FIRE_COLOR)
         self.emitters.append(FireEmitter(self.mouse_position))
         self.fire_surface = pygame.Surface(
             pygame.display.get_window_size(),

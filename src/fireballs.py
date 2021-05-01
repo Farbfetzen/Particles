@@ -4,10 +4,7 @@ from src.base import Emitter
 from src.fire import FireSimulation, FireParticle, EMISSION_DELAY
 
 
-EMITTER_ACCELERATIONS = (
-    pygame.Vector2(0, 750),  # gravity
-)
-TOTAL_EMITTER_ACCELERATION = sum(EMITTER_ACCELERATIONS, pygame.Vector2())
+EMITTER_ACCELERATION = pygame.Vector2(0, 750)  # gravity
 EMITTER_VELOCITY_FACTOR = 0.25
 
 
@@ -25,7 +22,7 @@ class FireballSimulation(FireSimulation):
 
     def update(self, dt, mouse_position):
         self.mouse_position.update(mouse_position)
-        particle_velocity_change = self.total_acceleration * dt
+        particle_velocity_change = self.particle_acceleration * dt
         particle_velocity_change_half = particle_velocity_change / 2
         alive_particles = []
         for particle in self.particles:
@@ -33,7 +30,7 @@ class FireballSimulation(FireSimulation):
             if particle.is_alive:
                 alive_particles.append(particle)
         self.particles = alive_particles
-        emitter_velocity_change = TOTAL_EMITTER_ACCELERATION * dt
+        emitter_velocity_change = EMITTER_ACCELERATION * dt
         emitter_velocity_change_half = emitter_velocity_change / 2
         for emitter in self.emitters:
             # TODO: remove dead emitters from list

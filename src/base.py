@@ -6,12 +6,12 @@ from src.helpers import Timer
 
 
 class Simulation:
-    def __init__(self, total_acceleration, background_color="#000020", cursor_color="#dcdcdc"):
+    def __init__(self, particle_acceleration, background_color="#000020", cursor_color="#dcdcdc"):
         self.particles = []
         self.emitters = []
         self.is_emitting = False
         self.mouse_position = pygame.Vector2()
-        self.total_acceleration = total_acceleration
+        self.particle_acceleration = particle_acceleration
         self.background_color = background_color
         self.cursor_color = cursor_color
 
@@ -25,7 +25,7 @@ class Simulation:
 
     def update(self, dt, mouse_position):
         self.mouse_position.update(mouse_position)
-        particle_velocity_change = self.total_acceleration * dt
+        particle_velocity_change = self.particle_acceleration * dt
         particle_velocity_change_half = particle_velocity_change / 2
         alive_particles = []
         for particle in self.particles:

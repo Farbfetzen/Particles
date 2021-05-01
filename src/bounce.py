@@ -13,7 +13,7 @@ PARTICLES_PER_SECOND = 100
 EMISSION_DELAY = 1 / PARTICLES_PER_SECOND
 SPEED_MEAN = 200
 SPEED_SD = 25
-TOTAL_ACCELERATION = 0
+PARTICLE_ACCELERATION = 0
 EMITTER_VELOCITY_FACTOR = 0.2
 BOUNCE_MODIFIER_ALPHABETA = 3
 BOUNCE_MODIFIER_MIN = 0.8
@@ -24,7 +24,7 @@ LIFETIME_SD = 2
 
 class BounceSimulation(Simulation):
     def __init__(self):
-        super().__init__(TOTAL_ACCELERATION)
+        super().__init__(PARTICLE_ACCELERATION)
         self.emitters.append(BounceEmitter(self.mouse_position))
         BounceParticle.set_limits()
 

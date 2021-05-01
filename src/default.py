@@ -12,19 +12,16 @@ PARTICLES_PER_SECOND = 500
 EMISSION_DELAY = 1 / PARTICLES_PER_SECOND
 SPEED_MEAN = 150  # pixels per second
 SPEED_SD = 20
-ACCELERATIONS = (
-    pygame.Vector2(0, 750),  # gravity
-)
+PARTICLE_ACCELERATION = pygame.Vector2(0, 750)  # gravity
 # I could also implement forces instead of accelerations but that
 # is unnecessary as long as all particles have the same mass.
-TOTAL_ACCELERATION = sum(ACCELERATIONS, pygame.Vector2())
 # Modify the emitter velocity affecting the initial particle velocity:
 EMITTER_VELOCITY_FACTOR = 0.2
 
 
 class DefaultSimulation(Simulation):
     def __init__(self):
-        super().__init__(TOTAL_ACCELERATION)
+        super().__init__(PARTICLE_ACCELERATION)
         self.emitters.append(DefaultEmitter(self.mouse_position))
         DefaultParticle.set_limits()
 
