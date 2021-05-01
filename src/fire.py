@@ -1,7 +1,3 @@
-# Improvement Ideas:
-# - Fire flickers randomly. Both in brightness and direction of the flames.
-
-
 import random
 
 import pygame
@@ -29,6 +25,7 @@ PARTICLE_ACCELERATION = pygame.Vector2(0, -400)  # updraft
 class FireSimulation(Simulation):
     def __init__(self):
         super().__init__(PARTICLE_ACCELERATION, cursor_color=FIRE_COLOR)
+        FireParticle.set_limits()
         self.emitters.append(FireEmitter(self.mouse_position))
         self.fire_surface = pygame.Surface(
             pygame.display.get_window_size(),
@@ -87,6 +84,18 @@ def make_particle_images():
 
 class FireParticle(Particle):
     images = make_particle_images()
+    limit_rect = pygame.Rect(
+        -PARTICLE_DIAMETER,
+        -PARTICLE_DIAMETER,
+        1200 + PARTICLE_DIAMETER,
+        800 + PARTICLE_DIAMETER * 3,  # allow to briefly go below the window bottom
+    )
+
+    @classmethod
+    def set_limits(cls):
+        cls.limit_rect.size = pygame.display.get_window_size()
+        cls.limit_rect.width += PARTICLE_DIAMETER
+        cls.limit_rect.height += PARTICLE_DIAMETER * 3
 
     def __init__(self, position):
         super().__init__(position)
@@ -112,3 +121,5 @@ class FireParticle(Particle):
             self.image = FireParticle.images[int(alpha)]
         self.velocity += velocity_change
         self.position += (self.velocity - velocity_change_half) * dt
+        if not FireParticle.limit_rect.collidepoint(self.position):
+            self.is_alive = False

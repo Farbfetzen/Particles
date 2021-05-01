@@ -10,7 +10,7 @@ class Simulation:
         self.particles = []
         self.emitters = []
         self.is_emitting = False
-        self.mouse_position = pygame.Vector2()
+        self.mouse_position = pygame.Vector2(pygame.mouse.get_pos())
         self.particle_acceleration = particle_acceleration
         self.background_color = background_color
         self.cursor_color = cursor_color

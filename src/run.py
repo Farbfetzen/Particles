@@ -75,6 +75,12 @@ def run(sim_name, window_size):
             font.render_to(
                 window,
                 text_margin + line_spacing * 2,
+                f"number of emitters: {len(sim.emitters)}"
+            )
+            font.render_to(
+                window,
+                text_margin + line_spacing * 3,
                 f"number of particles: {len(sim.particles)}"
             )
+
         pygame.display.flip()
