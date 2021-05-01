@@ -3,7 +3,7 @@ A collection of particle emitters.
 You can choose the simulation by giving its name as the first argument.
 If it is missing, the default one is used.
 ```
-python main.py fire
+python particles.py fire
 ```
 Available modes:
 - default
