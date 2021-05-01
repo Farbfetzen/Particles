@@ -1,6 +1,6 @@
 A collection of particle emitters.
 
-You can choose the simulation by giving its name as the first argument.
+Requires Python 3 and Pygame 2. You can choose the simulation by giving its name as the first argument.
 If it is missing, the default one is used.
 ```
 python particles.py fire
@@ -8,6 +8,7 @@ python particles.py fire
 Available modes:
 - default
 - fire
+- fireballs
 - bounce
 
 
@@ -16,8 +17,8 @@ Action | Binding
 --- | ---
 Emit particles | Left mouse button
 Pause/unpause | Space
-Delete all particles | Delete
 Next simulation | N
+Delete all particles | Delete
 Show miscellaneous info | F1
 Quit | Esc
 
