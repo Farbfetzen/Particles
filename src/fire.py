@@ -12,7 +12,8 @@ from src.helpers import linear_map
 
 TRANSPARENT_BLACK = pygame.Color(0, 0, 0, 0)
 FIRE_COLOR = pygame.Color(226, 88, 34)
-PARTICLE_DIAMETER = 51
+PARTICLE_DIAMETER = 50
+PARTICLE_RADIUS = PARTICLE_DIAMETER / 2
 PARTICLES_PER_SECOND = 250
 EMISSION_DELAY = 1 / PARTICLES_PER_SECOND
 LIFETIME_MEAN = 1  # seconds
@@ -92,7 +93,7 @@ class FireParticle(Particle):
 
     def __init__(self, position):
         super().__init__(position)
-        self.position = self.position.elementwise() - PARTICLE_DIAMETER // 2  # center the image
+        self.position = self.position.elementwise() - PARTICLE_RADIUS  # center the image
         self.velocity = pygame.Vector2(random.gauss(SPEED_MEAN, SPEED_SD), 0)
         self.velocity.rotate_ip(random.uniform(0, 360))
         self.image = FireParticle.images[-1]
