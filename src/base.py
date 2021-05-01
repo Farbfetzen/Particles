@@ -90,6 +90,7 @@ class Emitter:
 class Particle(ABC):
     def __init__(self, position):
         self.position = pygame.Vector2(position)
+        self.is_alive = True
 
     @abstractmethod
     def update(self, dt, velocity_change, velocity_change_half):

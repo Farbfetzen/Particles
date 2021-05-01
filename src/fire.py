@@ -100,7 +100,6 @@ class FireParticle(Particle):
         self.time = 0
         self.lifetime_limit = random.gauss(LIFETIME_MEAN, LIFETIME_SD)
         self.vanish_start_time = self.lifetime_limit - VANISH_DURATION
-        self.is_alive = True
 
     def update(self, dt, velocity_change, velocity_change_half):
         self.time += dt

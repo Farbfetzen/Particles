@@ -64,7 +64,6 @@ class BounceParticle(Particle):
         self.x_min = -PARTICLE_DIAMETER
         self.x_max = x_max
         self.y_max = y_max - PARTICLE_DIAMETER
-        self.is_alive = True
         self.bounces = 0
 
     def update(self, dt, velocity_change, velocity_change_half):

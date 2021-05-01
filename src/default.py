@@ -56,7 +56,6 @@ class DefaultParticle(Particle):
         self.x_min = -PARTICLE_DIAMETER
         self.x_max = x_max
         self.y_max = y_max
-        self.is_alive = True
 
     def update(self, dt, velocity_change, velocity_change_half):
         if self.position.y >= self.y_max or not self.x_min < self.position.x < self.x_max:
