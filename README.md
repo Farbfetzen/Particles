@@ -1,11 +1,11 @@
-A collection of particle emitters.
+A collection of particle systems.
 
-Requires Python 3 and Pygame 2. You can choose the simulation by giving its name as the first argument.
+Requires Python 3 and Pygame 2. You can choose the system by giving its name as the first argument.
 If it is missing, the default one is used.
 ```
 python particles.py fire
 ```
-Available modes:
+Available systems:
 - default
 - fire
 - fireballs
@@ -17,7 +17,7 @@ Action | Binding
 --- | ---
 Emit particles | Left mouse button
 Pause/unpause | Space
-Next simulation | N
+Next system | N
 Delete all particles | Delete
 Show miscellaneous info | F1
 Quit | Esc

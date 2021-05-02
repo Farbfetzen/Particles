@@ -2,7 +2,7 @@ import random
 
 import pygame
 
-from src.base import Simulation, Emitter, Particle
+from src.base import System, Emitter, Particle
 from src.helpers import linear_map
 
 
@@ -23,7 +23,7 @@ PARTICLE_ACCELERATION = pygame.Vector2(0, -400)  # updraft
 PARTICLE_LIMIT_RECT = pygame.Rect(-PARTICLE_DIAMETER, -PARTICLE_DIAMETER, 0, 0)
 
 
-class FireSimulation(Simulation):
+class FireSystem(System):
     def __init__(self):
         super().__init__(PARTICLE_ACCELERATION, cursor_color=FIRE_COLOR)
         self.emitters.append(FireEmitter(self.mouse_position))

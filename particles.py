@@ -11,7 +11,7 @@ parser.add_argument(
     "name",
     nargs="?",
     default="default",
-    help="Name of the particle simulation."
+    help="Name of the particle system."
 )
 parser.add_argument(
     "-w",

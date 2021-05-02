@@ -2,7 +2,7 @@ import random
 
 import pygame
 
-from src.base import Simulation, Emitter, Particle
+from src.base import System, Emitter, Particle
 
 
 PARTICLE_COLOR = pygame.Color(220, 220, 220)
@@ -20,7 +20,7 @@ EMITTER_VELOCITY_FACTOR = 0.2
 PARTICLE_LIMIT_RECT = pygame.Rect(-PARTICLE_DIAMETER, -PARTICLE_DIAMETER, 0, 0)
 
 
-class DefaultSimulation(Simulation):
+class DefaultSystem(System):
     def __init__(self):
         super().__init__(PARTICLE_ACCELERATION)
         self.emitters.append(DefaultEmitter(self.mouse_position))

@@ -1,7 +1,7 @@
 import pygame
 
 from src.base import Emitter
-from src.fire import FireSimulation, FireParticle, EMISSION_DELAY
+from src.fire import FireSystem, FireParticle, EMISSION_DELAY
 
 
 EMITTER_ACCELERATION = pygame.Vector2(0, 750)  # gravity
@@ -17,7 +17,7 @@ EMITTER_LIMIT_RECT = pygame.Rect(
 )
 
 
-class FireballSimulation(FireSimulation):
+class FireballSystem(FireSystem):
     def __init__(self):
         super().__init__()
         self.emitters.clear()

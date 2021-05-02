@@ -5,7 +5,7 @@ import pygame
 from src.helpers import Timer
 
 
-class Simulation:
+class System:
     def __init__(self, particle_acceleration, background_color="#000020", cursor_color="#dcdcdc"):
         self.particles = []
         self.emitters = []

@@ -1,22 +1,22 @@
 import pygame
 import pygame.freetype
 
-from src.bounce import BounceSimulation
-from src.default import DefaultSimulation
-from src.fire import FireSimulation
-from src.fireballs import FireballSimulation
+from src.bounce import BounceSystem
+from src.default import DefaultSystem
+from src.fire import FireSystem
+from src.fireballs import FireballSystem
 
 
-SIMS = {
-    "bounce": BounceSimulation,
-    "default": DefaultSimulation,
-    "fire": FireSimulation,
-    "fireballs": FireballSimulation
+SYSTEMS = {
+    "bounce": BounceSystem,
+    "default": DefaultSystem,
+    "fire": FireSystem,
+    "fireballs": FireballSystem
 }
-SIM_NAMES = sorted(list(SIMS.keys()))
+SYSTEM_NAMES = sorted(list(SYSTEMS.keys()))
 
 
-def run(sim_name, window_size):
+def run(system_name, window_size):
     pygame.init()
     window = pygame.display.set_mode(window_size)
     pygame.display.set_caption("Particles")
@@ -24,8 +24,8 @@ def run(sim_name, window_size):
     clock = pygame.time.Clock()
     paused = False
 
-    sim = SIMS[sim_name]()
-    sim_index = SIM_NAMES.index(sim_name)
+    system = SYSTEMS[system_name]()
+    system_index = SYSTEM_NAMES.index(system_name)
 
     show_info = True
     font = pygame.freetype.SysFont(("consolas", "inconsolata", "monospace"), 16)
@@ -48,24 +48,24 @@ def run(sim_name, window_size):
                     paused = not paused
                     pygame.mouse.set_visible(paused)
                 elif event.key == pygame.K_DELETE:
-                    sim.clear()
+                    system.clear()
                 elif event.key == pygame.K_n:
-                    # Switch to the next simulation
-                    sim_index = (sim_index + 1) % len(SIM_NAMES)
-                    sim_name = SIM_NAMES[sim_index]
-                    sim = SIMS[sim_name]()
-            sim.handle_event(event)
+                    # Switch to the next system
+                    system_index = (system_index + 1) % len(SYSTEM_NAMES)
+                    system_name = SYSTEM_NAMES[system_index]
+                    system = SYSTEMS[system_name]()
+            system.handle_event(event)
 
         if not paused:
-            sim.update(dt, pygame.mouse.get_pos())
+            system.update(dt, pygame.mouse.get_pos())
 
-        sim.draw(window)
+        system.draw(window)
 
         if show_info:
             font.render_to(
                 window,
                 text_margin,
-                sim_name
+                system_name
             )
             font.render_to(
                 window,
@@ -75,13 +75,13 @@ def run(sim_name, window_size):
             font.render_to(
                 window,
                 text_margin + line_spacing * 2,
-                f"number of particles: {len(sim.particles)}"
+                f"number of particles: {len(system.particles)}"
             )
-            if sim_name == "fireballs":
+            if system_name == "fireballs":
                 font.render_to(
                     window,
                     text_margin + line_spacing * 3,
-                    f"number of emitters: {len(sim.emitters)}"
+                    f"number of emitters: {len(system.emitters)}"
                 )
 
         pygame.display.flip()
