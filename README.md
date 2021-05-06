@@ -1,5 +1,7 @@
 A collection of particle systems.
 
+![fire example](example_images/fire.png)
+
 Requires Python 3 and Pygame 2. You can choose the system by giving its name as the first argument.
 If it is missing, the default one is used.
 ```
