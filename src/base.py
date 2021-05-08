@@ -49,7 +49,7 @@ class System:
         self.particles.clear()
 
 
-class Emitter:
+class Emitter(ABC):
     def __init__(self, position, emission_delay, emitter_velocity_factor=0):
         self.position = pygame.Vector2(position)
         self.previous_position = pygame.Vector2(position)
