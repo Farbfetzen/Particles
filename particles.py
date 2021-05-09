@@ -4,13 +4,27 @@ import os
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 
 import src.run
+from src.bounce import BounceSystem
+from src.default import DefaultSystem
+from src.fire import FireSystem
+from src.fireballs import FireballSystem
+from src.portal import PortalSystem
 
+
+SYSTEMS = {
+    "bounce": BounceSystem,
+    "default": DefaultSystem,
+    "fire": FireSystem,
+    "fireballs": FireballSystem,
+    "portal": PortalSystem
+}
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
     "name",
     nargs="?",
     default="default",
+    choices=list(SYSTEMS.keys()),
     help="Name of the particle system."
 )
 parser.add_argument(
@@ -24,8 +38,4 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
-valid_names = {"default", "bounce", "fire", "fireballs"}
-if args.name not in valid_names:
-    parser.error(f"name must be one of {list(valid_names)}")
-
-src.run.run(args.name, args.window_size)
+src.run.run(SYSTEMS, args.name, args.window_size)

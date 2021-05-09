@@ -1,22 +1,8 @@
 import pygame
 import pygame.freetype
 
-from src.bounce import BounceSystem
-from src.default import DefaultSystem
-from src.fire import FireSystem
-from src.fireballs import FireballSystem
 
-
-SYSTEMS = {
-    "bounce": BounceSystem,
-    "default": DefaultSystem,
-    "fire": FireSystem,
-    "fireballs": FireballSystem
-}
-SYSTEM_NAMES = sorted(list(SYSTEMS.keys()))
-
-
-def run(system_name, window_size):
+def run(systems, system_name, window_size):
     pygame.init()
     window = pygame.display.set_mode(window_size)
     pygame.display.set_caption("Particles")
@@ -24,8 +10,9 @@ def run(system_name, window_size):
     clock = pygame.time.Clock()
     paused = False
 
-    system = SYSTEMS[system_name]()
-    system_index = SYSTEM_NAMES.index(system_name)
+    system = systems[system_name]()
+    system_names = sorted(list(systems.keys()))
+    system_index = system_names.index(system_name)
 
     show_info = True
     font = pygame.freetype.SysFont(("consolas", "inconsolata", "monospace"), 16)
@@ -51,9 +38,9 @@ def run(system_name, window_size):
                     system.clear()
                 elif event.key == pygame.K_n:
                     # Switch to the next system
-                    system_index = (system_index + 1) % len(SYSTEM_NAMES)
-                    system_name = SYSTEM_NAMES[system_index]
-                    system = SYSTEMS[system_name]()
+                    system_index = (system_index + 1) % len(system_names)
+                    system_name = system_names[system_index]
+                    system = systems[system_name]()
             system.handle_event(event)
 
         if not paused:
