@@ -1,13 +1,13 @@
-A collection of particle systems.
+A collection of particle effects.
 
 ![fire example](example_images/fire.png)
 
-Requires Python 3 and Pygame 2. You can choose the system by giving its name as the first argument.
+Requires Python 3 and Pygame 2. You can choose the effect by giving its name as the first argument.
 If it is missing, the default one is used.
 ```
 python particles.py fire
 ```
-Available systems:
+Available effects:
 - default
 - fire
 - fireballs
