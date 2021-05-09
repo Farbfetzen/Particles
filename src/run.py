@@ -64,7 +64,7 @@ def run(systems, system_name, window_size):
                 text_margin + line_spacing * 2,
                 f"number of particles: {len(system.particles)}"
             )
-            if system_name == "fireballs":
+            if system.show_number_of_emitters:
                 font.render_to(
                     window,
                     text_margin + line_spacing * 3,

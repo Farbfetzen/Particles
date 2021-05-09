@@ -24,6 +24,7 @@ class FireballSystem(FireSystem):
         EMITTER_LIMIT_RECT.size = pygame.display.get_window_size()
         EMITTER_LIMIT_RECT.width += EMITTER_LIMIT_RECT_PADDING_X * 2
         EMITTER_LIMIT_RECT.height += EMITTER_LIMIT_RECT_PADDING_Y * 2
+        self.show_number_of_emitters = True
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -82,9 +83,8 @@ class FireballEmitter(Emitter):
                     return self.emit(n_new_particles)
             elif EMITTER_LIMIT_RECT.top < self.position.y:
                 self.is_alive = False
-        else:
-            return super().update(dt, mouse_position, True)
-        return []
+                return ()
+        return super().update(dt, mouse_position, True)
 
     def add_particle(self, position):
         return FireParticle(position)

@@ -14,6 +14,7 @@ class System:
         self.particle_acceleration = particle_acceleration
         self.background_color = background_color
         self.cursor_color = cursor_color
+        self.show_number_of_emitters = False
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -69,7 +70,7 @@ class Emitter(ABC):
             n_new_particles = self.emission_timer.update(dt)
             if n_new_particles > 0:
                 return self.emit(n_new_particles)
-        return []
+        return ()
 
     def emit(self, n_particles):
         if self.previous_position.distance_squared_to(self.position) > 0:
