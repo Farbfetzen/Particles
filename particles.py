@@ -24,7 +24,7 @@ parser.add_argument(
     "name",
     nargs="?",
     default="default",
-    choices=list(SYSTEMS.keys()),
+    choices=SYSTEMS.keys(),
     help="Name of the particle system."
 )
 parser.add_argument(
